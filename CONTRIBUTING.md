@@ -4,10 +4,9 @@
 * [HOWTO contribute]
 * [Setting up virtual environment]
 * [Installing requirements]
-* [Running server]
+* [Running server live]
 * [Running tests]
 * [Running linter]
-* [API docs]
 
 
 ## HOWTO contribute
@@ -40,9 +39,9 @@ pip install -r requirements-dev.txt
 ```
 
 
-## Running server
+## Running server live
 ```
-make run
+make dev-run
 ```
 or
 ```
@@ -56,7 +55,7 @@ make test
 ```
 or
 ```
-pytest tests/
+pytest --cov=app/ tests/
 ```
 
 
@@ -70,14 +69,10 @@ pre-commit install
 ```
 
 
-## API docs
-[http://localhost:8000/docs](http://localhost:8000/docs)
-
 
 [HOWTO contribute]: #howto-contribute
 [Setting up virtual environment]: #setting-up-virtual-environment
 [Installing requirements]: #installing-requirements
-[Running server]: #running-server
+[Running server live]: #running-server-live
 [Running tests]: #running-tests
 [Running linter]: #running-linter
-[API docs]: #api-docs
