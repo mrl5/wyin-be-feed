@@ -1,4 +1,7 @@
 # WYIN backend - feed microservice
+[![pipeline status](https://gitlab.com/spio-wyin/wyin-be-feed/badges/master/pipeline.svg)](https://gitlab.com/spio-wyin/wyin-be-feed/-/pipelines)
+[![coverage report](https://gitlab.com/spio-wyin/wyin-be-feed/badges/master/coverage.svg?job=test&key_text=test%20coverage&key_width=90)](https://gitlab.com/spio-wyin/wyin-be-feed/-/tree/master/tests)
+
 This is a REST API for WYIN feed
 
 ## Table of contents
