@@ -1,4 +1,4 @@
-SHELL=/bin/bash
+SHELL=/bin/sh
 
 .PHONY: all help build run serve install install-dev dev-install lint test run-dev dev-run
 
