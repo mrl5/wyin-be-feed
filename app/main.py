@@ -5,7 +5,7 @@
 
 from fastapi import FastAPI
 
-from .routers import health
+from app.routers import health
 
 app = FastAPI()
 
