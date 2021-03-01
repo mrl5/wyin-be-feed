@@ -16,4 +16,4 @@ router = APIRouter(prefix="/health", tags=["health"])
 @router.get("", response_model=HealthModel)
 async def get_health(response: Response = Depends(no_cache_headers)):
     h: IHttpRequestHandler = Health()
-    return h.handle()
+    return await h.handle()

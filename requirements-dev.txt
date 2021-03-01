@@ -1,9 +1,10 @@
 black
 flake8
+httpx
 isort
 mypy
 pre-commit
 pytest
+pytest-aiohttp
 pytest-cov
-requests
 uvicorn[standard]
