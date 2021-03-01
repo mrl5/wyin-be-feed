@@ -21,6 +21,7 @@ def client():
 
 @pytest.mark.asyncio
 @pytest.mark.parametrize("lang", languages)
+@pytest.mark.skip(reason="unskip when WYIN-34 implementation is ready")
 async def test_query(client, lang):
     client.params.update({"lang": lang})  # this is needed only to parametrize fake_app
 
