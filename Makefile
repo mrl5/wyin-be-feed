@@ -25,7 +25,7 @@ lint:
 	pre-commit run --all-files
 
 test:
-	pytest --cov=app/ tests/
+	pytest --disable-socket --cov=app/ tests/
 
 run-dev:
 	uvicorn app.main:app --reload
