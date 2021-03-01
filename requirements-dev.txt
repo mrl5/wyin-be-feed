@@ -1,10 +1,10 @@
 black
 flake8
-httpx
 isort
 mypy
 pre-commit
 pytest
-pytest-aiohttp
+pytest-asyncio
 pytest-cov
+pytest-socket
 uvicorn[standard]

@@ -55,7 +55,7 @@ make test
 ```
 or
 ```
-pytest --cov=app/ tests/
+pytest --disable-socket --cov=app/ tests/
 ```
 
 
