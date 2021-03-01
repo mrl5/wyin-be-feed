@@ -15,6 +15,6 @@ class Health(IHttpRequestHandler):
     def _get_status(self) -> GenericHealthEnum:
         return GenericHealthEnum.healthy
 
-    def handle(self) -> HealthModel:
+    async def handle(self) -> HealthModel:
         self._model.status = self._get_status()
         return self._model

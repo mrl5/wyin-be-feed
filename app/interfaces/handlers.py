@@ -18,5 +18,5 @@ from pydantic import BaseModel
 class IHttpRequestHandler(Protocol):
     # design pattern: command
     @abstractmethod
-    def handle(self) -> BaseModel:
+    async def handle(self) -> BaseModel:
         raise NotImplementedError

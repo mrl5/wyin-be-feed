@@ -20,5 +20,7 @@ def test_interface(instance):
     assert isinstance(instance, IHttpRequestHandler)
 
 
-def test_health_check(instance):
-    assert instance.handle().status == GenericHealthEnum.healthy
+@pytest.mark.asyncio
+async def test_health_check(instance):
+    result = await instance.handle()
+    assert result.status == GenericHealthEnum.healthy
