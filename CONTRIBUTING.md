@@ -15,7 +15,9 @@ Workflow](https://www.atlassian.com/git/tutorials/comparing-workflows/forking-wo
 and using topic branches named after JIRA tickets
 
 
-## Setting up virtual environment
+## Setting up virtual environment 
+Note: this part is OPTIONAL, but still recommended.
+
 1. Create python3 virtualenv:
 ```
 VENV_DIR="$HOME/.my_virtualenvs/wyin-be-feed"
