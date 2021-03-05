@@ -59,6 +59,14 @@ test:
   script:
     - make test
 
+wily:
+  stage: test
+  before_script:
+    - pip install wily
+  script:
+    - wily build app/ tests/
+    - wily diff app/ tests/ -r HEAD^1
+
 build_docker:
   stage: build
   needs: [test]
