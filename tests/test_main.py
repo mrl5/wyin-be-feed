@@ -7,15 +7,17 @@ import pytest
 from httpx import AsyncClient
 
 from feed.main import app
+from tests.mocks.mock_factory import get_events_response
 
 # https://opensource.zalando.com/restful-api-guidelines/#227
 NO_CACHE_HEADERS = "no-cache, no-store, must-revalidate, max-age=0"
 
-history_events_params = [
+history_events_cases = [
     (200, {"t": "10:20"}),
+    (200, {"t": "10%3A20"}),
     (200, {"t": "8:10"}),
     (200, {"t": "10:20", "X": "F"}),
-    (200, {"t": "10%3A20"}),
+    (400, {"t": "1:1"}),
     (400, {"t": "hh:mm"}),
     (400, {"t": ""}),
     (400, {"t": "24:21"}),
@@ -38,8 +40,11 @@ async def test_health():
 
 
 @pytest.mark.asyncio
-@pytest.mark.parametrize("status_code, params", history_events_params)
+@pytest.mark.parametrize("status_code, params", history_events_cases)
 async def test_history_events(status_code, params):
     async with AsyncClient(app=app, base_url="http://test") as ac:
         response = await ac.get("/history/events", params=params)
+
     assert response.status_code == status_code
+    if status_code == 200:
+        assert response.json() == get_events_response("pl_events")
