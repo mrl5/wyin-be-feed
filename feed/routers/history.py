@@ -5,14 +5,14 @@
 
 from fastapi import APIRouter, Depends, Response
 
-from app.dependencies import no_cache_headers
-from app.handlers.health import Health
-from app.interfaces.handlers import IHttpRequestHandler
-from app.models.health import HealthModel
+from feed.dependencies import no_cache_headers
+from feed.handlers.health import Health
+from feed.interfaces.handlers import IHttpRequestHandler
+from feed.models.health import HealthModel
 
 router = APIRouter(prefix="/history", tags=["history"])
 
 
 @router.get("/events")
 async def get_events():
-	pass
+    pass

@@ -47,7 +47,7 @@ make dev-run
 ```
 or
 ```
-uvicorn app.main:app --reload
+uvicorn feed.main:app --reload
 ```
 
 
@@ -57,7 +57,7 @@ make test
 ```
 or
 ```
-pytest --disable-socket --cov=app/ tests/
+pytest --disable-socket --cov=feed/ tests/
 ```
 
 

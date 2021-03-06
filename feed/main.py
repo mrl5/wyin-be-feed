@@ -5,8 +5,7 @@
 
 from fastapi import FastAPI
 
-from app.routers import health
-from app.routers import history
+from feed.routers import health, history
 
 app = FastAPI()
 

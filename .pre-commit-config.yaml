@@ -23,7 +23,7 @@ repos:
     hooks:
       - id: insert-license
         language: python
-        files: ^(app|tests)\/(?!.*__init__\.py).+\.py$
+        files: ^(feed|tests)\/(?!.*__init__\.py).+\.py$
         args: [--license-filepath, "LICENSE_header"]
 
   - repo: https://gitlab.com/pycqa/flake8
