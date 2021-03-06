@@ -4,8 +4,8 @@
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
 
-from app.interfaces.handlers import IHttpRequestHandler
-from app.models.health import GenericHealthEnum, HealthModel
+from feed.interfaces.handlers import IHttpRequestHandler
+from feed.models.health import GenericHealthEnum, HealthModel
 
 
 class Health(IHttpRequestHandler):

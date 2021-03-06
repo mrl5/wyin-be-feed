@@ -64,8 +64,8 @@ wily:
   before_script:
     - pip install wily
   script:
-    - wily build app/ tests/
-    - wily diff app/ tests/ -r HEAD^1
+    - wily build feed/ tests/
+    - wily diff feed/ tests/ -r HEAD^1
 
 build_docker:
   stage: build

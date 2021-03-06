@@ -5,9 +5,9 @@
 
 import pytest
 
-from app.handlers.health import Health
-from app.interfaces.handlers import IHttpRequestHandler
-from app.models.health import GenericHealthEnum
+from feed.handlers.health import Health
+from feed.interfaces.handlers import IHttpRequestHandler
+from feed.models.health import GenericHealthEnum
 
 
 @pytest.fixture(scope="function")

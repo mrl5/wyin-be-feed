@@ -25,10 +25,10 @@ lint:
 	pre-commit run --all-files
 
 test:
-	pytest --disable-socket --cov=app/ tests/
+	pytest --disable-socket --cov=feed/ tests/
 
 run-dev:
-	uvicorn app.main:app --reload
+	uvicorn feed.main:app --reload
 
 dev-run: run-dev
 

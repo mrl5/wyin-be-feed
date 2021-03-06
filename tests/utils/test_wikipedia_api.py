@@ -6,7 +6,7 @@
 import pytest
 from httpx import AsyncClient
 
-from app.utils.wikipedia_api import query
+from feed.utils.wikipedia_api import query
 from tests.mocks.fake_wikipedia_api import fake_app
 from tests.mocks.mock_factory import get_wiki_response
 
