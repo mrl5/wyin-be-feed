@@ -12,6 +12,7 @@ async def query(year: int, lang: str = None, client: AsyncClient = None) -> Resp
     lang = lang if lang is not None else DEFAULT_LANG
     client = client if client is not None else AsyncClient()
 
-    # todo: set URL
-    # todo: set query strings aka params
-    # todo: return response
+    client.base_url = URL(f"https://{lang}.wikipedia.org")
+    client.params.update({"action": "query", "prop": "extracts", "format": "json"})
+
+    return await client.get("/w/api.php", params={"titles": year})
