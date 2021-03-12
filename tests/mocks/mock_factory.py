@@ -7,6 +7,8 @@ import json
 from enum import Enum, unique
 from pathlib import Path
 
+from feed.handlers.history import Events
+
 CWD = Path(__file__).resolve().parent
 
 
@@ -36,3 +38,10 @@ def get_wiki_response(key: str) -> dict:
 def get_events_response(key: str) -> dict:
     path = CWD / EventsReponseMocks[key].value
     return _json_to_dict(path)
+
+
+def monkeypatch_history_events_handler(monkeypatch):
+    async def mockreturn(self):
+        return get_wiki_response("pl_wiki")
+
+    monkeypatch.setattr(Events, "_get_wiki_response", mockreturn)

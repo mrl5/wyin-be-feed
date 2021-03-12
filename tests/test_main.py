@@ -7,7 +7,10 @@ import pytest
 from httpx import AsyncClient
 
 from feed.main import app
-from tests.mocks.mock_factory import get_events_response
+from tests.mocks.mock_factory import (
+    get_events_response,
+    monkeypatch_history_events_handler,
+)
 
 # https://opensource.zalando.com/restful-api-guidelines/#227
 NO_CACHE_HEADERS = "no-cache, no-store, must-revalidate, max-age=0"
@@ -41,7 +44,8 @@ async def test_health():
 
 @pytest.mark.asyncio
 @pytest.mark.parametrize("status_code, params", history_events_cases)
-async def test_history_events(status_code, params):
+async def test_history_events(status_code, params, monkeypatch):
+    monkeypatch_history_events_handler(monkeypatch)
     async with AsyncClient(app=app, base_url="http://test") as ac:
         response = await ac.get("/history/events", params=params)
 

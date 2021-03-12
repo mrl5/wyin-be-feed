@@ -19,9 +19,6 @@ RUN /venv/bin/pip install --disable-pip-version-check -r /requirements.txt
 FROM gcr.io/distroless/python3-debian10:nonroot-amd64
 COPY --from=build-venv /venv /venv
 COPY feed /wyin-be-feed/feed
-# delete this block when WYIN-52 is implemented
-COPY tests/mocks /wyin-be-feed/tests/mocks
-# /delete this block when WYIN-52 is implemented
 WORKDIR /wyin-be-feed
 EXPOSE 8080
 ENTRYPOINT ["/venv/bin/uvicorn", "feed.main:app", "--host", "0.0.0.0", "--port", "8080"]
