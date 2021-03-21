@@ -9,11 +9,14 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.openapi.utils import get_openapi
 from fastapi.responses import JSONResponse
 
+from feed.middleware import catch_exceptions_middleware
 from feed.routers import health, history
 
 app = FastAPI()
 
 origins = ["*"]
+
+app.middleware("http")(catch_exceptions_middleware)
 
 app.add_middleware(
     CORSMiddleware, allow_origins=origins, allow_methods=["*"], allow_headers=["*"]
