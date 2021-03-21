@@ -15,7 +15,9 @@ async def catch_exceptions_middleware(request: Request, call_next):
     try:
         return await call_next(request)
     except ValidationError as ve:
-        return JSONResponse(status_code=400, content={"body": str(ve)})
+        return JSONResponse(
+            status_code=400, content={"body": next(iter(ve.errors()))["msg"]}
+        )
     except FutureYearError as fye:
         return JSONResponse(status_code=404, content={"body": str(fye)})
     except Exception:
