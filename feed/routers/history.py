@@ -3,8 +3,7 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-from fastapi import APIRouter, HTTPException, Query
-from pydantic import ValidationError
+from fastapi import APIRouter, Query
 
 from feed.handlers.history import Events
 from feed.interfaces.handlers import IHttpRequestHandler
@@ -22,8 +21,5 @@ async def get_events(
         description="24-hour clock time in %H:M% format",
     )
 ):
-    try:
-        h: IHttpRequestHandler = Events(locals())
-    except ValidationError as ve:
-        raise HTTPException(status_code=400, detail=str(ve))
+    h: IHttpRequestHandler = Events(locals())
     return await h.handle()

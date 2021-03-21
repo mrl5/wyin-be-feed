@@ -42,6 +42,7 @@ def get_events_response(key: str) -> dict:
 
 def monkeypatch_history_events_handler(monkeypatch):
     async def mockreturn(self):
+        self._time_to_year_converter(self._params.t)
         return get_wiki_response("pl_wiki")
 
     monkeypatch.setattr(Events, "_get_wiki_response", mockreturn)

@@ -9,17 +9,20 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.openapi.utils import get_openapi
 from fastapi.responses import JSONResponse
 
-from feed.middleware import catch_exceptions_middleware
+from feed.middleware import catch_exceptions_middleware, replace_false_422
 from feed.routers import health, history
 
 app = FastAPI()
 
-origins = ["*"]
+allowed_origins = ["*"]
 
 app.middleware("http")(catch_exceptions_middleware)
 
 app.add_middleware(
-    CORSMiddleware, allow_origins=origins, allow_methods=["*"], allow_headers=["*"]
+    CORSMiddleware,
+    allow_origins=allowed_origins,
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 
@@ -32,20 +35,6 @@ async def validation_exception_handler(request, exc):
     return JSONResponse(
         status_code=400, content={"detail": exc.errors(), "body": exc.body}
     )
-
-
-def replace_false_422(openapi_schema, true_status_code: int = 400):
-    # https://github.com/tiangolo/fastapi/issues/1376
-    for method in openapi_schema["paths"]:
-        try:
-            false_code = openapi_schema["paths"][method]["get"]["responses"]["422"]
-            openapi_schema["paths"][method]["get"]["responses"][
-                true_status_code
-            ] = false_code
-            del openapi_schema["paths"][method]["get"]["responses"]["422"]
-        except KeyError:
-            pass
-    return openapi_schema
 
 
 def custom_openapi():
