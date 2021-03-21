@@ -4,9 +4,10 @@
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
 import pytest
+from fastapi import HTTPException
 from httpx import AsyncClient
 
-from feed.main import app
+from feed.main import allowed_origins, app
 from tests.mocks.mock_factory import (
     get_events_response,
     monkeypatch_history_events_handler,
@@ -31,7 +32,10 @@ history_events_cases = [
     (400, {}),
     (400, None),
     (400, {"t": "-8:23"}),
+    (404, {"t": "23:59"}),
 ]
+
+cors_params = ({"t": "10:20"}, {"t": "23:59"})
 
 
 @pytest.mark.asyncio
@@ -52,3 +56,13 @@ async def test_history_events(status_code, params, monkeypatch):
     assert response.status_code == status_code
     if status_code == 200:
         assert response.json() == get_events_response("pl_events")
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("params", cors_params)
+async def test_cors_headers(params, monkeypatch):
+    monkeypatch_history_events_handler(monkeypatch)
+    headers = {"origin": "http://test"}
+    async with AsyncClient(app=app, base_url="http://test") as ac:
+        response = await ac.get("/history/events", params=params, headers=headers)
+    assert response.headers["access-control-allow-origin"] in allowed_origins
