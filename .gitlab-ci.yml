@@ -57,7 +57,10 @@ test:
     - source venv/bin/activate
     - pytest --version
   script:
-    - make test
+    - make test coverage-report
+  artifacts:
+    reports:
+      cobertura: coverage.xml
 
 wily:
   stage: test
