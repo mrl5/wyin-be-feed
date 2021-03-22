@@ -27,6 +27,9 @@ lint:
 test:
 	pytest --disable-socket --cov=feed/ tests/
 
+coverage-report:
+	coverage xml
+
 run-dev:
 	uvicorn feed.main:app --reload
 
