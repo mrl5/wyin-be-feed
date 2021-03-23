@@ -51,7 +51,6 @@ def monkeypatch_history_events_handler(monkeypatch, force_timeout=False):
             client = AsyncClient(app=None, timeout=0.0)
             async with client:
                 return await query_year("1000", lang, client)
-        else:
-            return get_wiki_response("pl_wiki")
+        return get_wiki_response("pl_wiki")
 
     monkeypatch.setattr(Events, "_get_wiki_response", mockreturn)

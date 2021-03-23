@@ -9,18 +9,17 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.openapi.utils import get_openapi
 from fastapi.responses import JSONResponse
 
+from feed.conf import ALLOWED_ORIGINS
 from feed.middleware import catch_exceptions_middleware, replace_false_422
 from feed.routers import health, history
 
 app = FastAPI()
 
-allowed_origins = ["*"]
-
 app.middleware("http")(catch_exceptions_middleware)
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=allowed_origins,
+    allow_origins=ALLOWED_ORIGINS,
     allow_methods=["*"],
     allow_headers=["*"],
 )
@@ -32,9 +31,7 @@ app.include_router(history.router)
 
 @app.exception_handler(RequestValidationError)
 async def validation_exception_handler(request, exc):
-    return JSONResponse(
-        status_code=400, content={"detail": exc.errors(), "body": exc.body}
-    )
+    return JSONResponse(status_code=400, content={"body": "Bad Request"})
 
 
 def custom_openapi():

@@ -8,6 +8,6 @@ from httpx import AsyncClient
 from feed.conf import HTTP_REQUEST_TIMEOUT
 
 
-def get_async_client():
+def get_async_client() -> AsyncClient:
     client = AsyncClient(timeout=HTTP_REQUEST_TIMEOUT)
     return client

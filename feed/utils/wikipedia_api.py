@@ -14,7 +14,8 @@ async def query_year(year: int, lang: str, client: AsyncClient = None) -> dict:
     client.base_url = URL(f"https://{lang}.wikipedia.org")
     client.params.update({"action": "query", "prop": "extracts", "format": "json"})
 
-    response = await client.get("/w/api.php", params={"titles": year})
+    async with client:
+        response = await client.get("/w/api.php", params={"titles": year})
     return response.json()
 
 

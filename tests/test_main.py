@@ -6,7 +6,8 @@
 import pytest
 from httpx import AsyncClient
 
-from feed.main import allowed_origins, app
+from feed.conf import ALLOWED_ORIGINS
+from feed.main import app
 from tests.mocks.mock_factory import (
     get_events_response,
     monkeypatch_history_events_handler,
@@ -64,7 +65,7 @@ async def test_cors_headers(params, monkeypatch):
     headers = {"origin": "http://test"}
     async with AsyncClient(app=app, base_url="http://test") as ac:
         response = await ac.get("/history/events", params=params, headers=headers)
-    assert response.headers["access-control-allow-origin"] in allowed_origins
+    assert response.headers["access-control-allow-origin"] in ALLOWED_ORIGINS
 
 
 @pytest.mark.asyncio
