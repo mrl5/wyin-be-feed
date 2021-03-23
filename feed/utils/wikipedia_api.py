@@ -5,9 +5,11 @@
 
 from httpx import URL, AsyncClient
 
+from feed.utils.http_factory import get_async_client
+
 
 async def query_year(year: int, lang: str, client: AsyncClient = None) -> dict:
-    client = client if client is not None else AsyncClient()
+    client = client if client is not None else get_async_client()
 
     client.base_url = URL(f"https://{lang}.wikipedia.org")
     client.params.update({"action": "query", "prop": "extracts", "format": "json"})

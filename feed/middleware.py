@@ -5,6 +5,7 @@
 
 from fastapi.requests import Request
 from fastapi.responses import JSONResponse
+from httpx import TimeoutException
 from pydantic import ValidationError
 
 from feed.errors import FutureYearError
@@ -20,6 +21,8 @@ async def catch_exceptions_middleware(request: Request, call_next):
         )
     except FutureYearError as fye:
         return JSONResponse(status_code=404, content={"body": str(fye)})
+    except TimeoutException as te:
+        return JSONResponse(status_code=504, content={"body": str(te)})
     except Exception:
         return JSONResponse(status_code=500, content={"body": "Internal server error"})
 
