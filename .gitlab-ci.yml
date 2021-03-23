@@ -6,6 +6,7 @@ stages:
   - setup
   - test
   - build
+  - release
 
 default:
   image: python:3.7
@@ -41,7 +42,7 @@ lint:
   script:
     - make lint
 
-test:
+unit_test:
   stage: test
   needs: [setup_venv]
   variables:
@@ -72,8 +73,10 @@ wily:
 
 build_docker:
   stage: build
-  needs: [test]
+  needs: [unit_test]
   image: docker
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
   variables:
     DOCKER_TLS_CERTDIR: "/certs"
   services:
@@ -84,3 +87,55 @@ build_docker:
     - apk add make
   script:
     - make build
+
+build_latest_docker:
+  stage: build
+  needs: [unit_test]
+  image: docker
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "master"'
+  variables:
+    DOCKER_TLS_CERTDIR: "/certs"
+    CONTAINER_SHA_IMAGE: $CI_REGISTRY_IMAGE:$CI_COMMIT_SHORT_SHA
+    CONTAINER_LATEST_IMAGE: $CI_REGISTRY_IMAGE:latest
+  services:
+    - docker:dind
+  before_script:
+    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+  script:
+    - docker build --pull -t $CONTAINER_SHA_IMAGE .
+    - docker push $CONTAINER_SHA_IMAGE
+    - docker tag $CONTAINER_SHA_IMAGE $CONTAINER_LATEST_IMAGE
+    - docker push $CONTAINER_LATEST_IMAGE
+
+build_release_docker:
+  stage: build
+  needs: [unit_test]
+  image: docker
+  rules:
+    - if: $CI_COMMIT_TAG
+  variables:
+    DOCKER_TLS_CERTDIR: "/certs"
+    CONTAINER_SHA_IMAGE: $CI_REGISTRY_IMAGE:$CI_COMMIT_SHORT_SHA
+    CONTAINER_RELEASE_IMAGE: $CI_REGISTRY_IMAGE:$CI_COMMIT_TAG
+  services:
+    - docker:dind
+  before_script:
+    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+  script:
+    - docker build --pull -t $CONTAINER_SHA_IMAGE .
+    - docker tag $CONTAINER_SHA_IMAGE $CONTAINER_RELEASE_IMAGE
+    - docker push $CONTAINER_RELEASE_IMAGE
+
+gitlab_release:
+  stage: release
+  needs: [build_release_docker]
+  image: registry.gitlab.com/gitlab-org/release-cli:latest
+  rules:
+    - if: $CI_COMMIT_TAG
+  script:
+    - echo running release for $CI_COMMIT_TAG
+  release:
+    name: 'Release $CI_COMMIT_TAG'
+    tag_name: '$CI_COMMIT_TAG'
+    description: 'Created using the release-cli'
