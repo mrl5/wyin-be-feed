@@ -5,11 +5,16 @@
 
 from fastapi import FastAPI
 
+from tests.mocks.fake_wikidata_api import WIKIDATA_ACTIONS
+from tests.mocks.fake_wikidata_api import wiki_api as wikidata_api
 from tests.mocks.mock_factory import get_wiki_response
 
 fake_app = FastAPI()
 
 
 @fake_app.get("/w/api.php")
-async def wiki_api(lang: str):
+async def wiki_api(lang: str, action: str = None):
+    if action in WIKIDATA_ACTIONS:
+        return await wikidata_api(lang, action)
+
     return get_wiki_response(f"{lang}_wiki")

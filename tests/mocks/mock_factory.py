@@ -17,13 +17,21 @@ CWD = Path(__file__).resolve().parent
 
 @unique
 class WikiResponseMocks(str, Enum):
+    # https://www.wikidata.org/w/api.php?action=wbsearchentities&format=json&language=en&search=13
+    en_wikidata_search_entities = "en_wikidata_api_wbsearchentities.json"
+    pl_wikidata_search_entities = "pl_wikidata_api_wbsearchentities.json"
+
+    # https://www.wikidata.org/w/api.php?action=wbgetentities&format=json&props=sitelinks&sitefilter=enwiki&ids=Q23411
+    en_wikidata_get_entities = "en_wikidata_api_wbgetentities.json"
+    pl_wikidata_get_entities = "pl_wikidata_api_wbgetentities.json"
+
+    # https://en.wikipedia.org/w/api.php?action=query&prop=extracts&format=json&titles=AD%2013
     en_wiki = "en_wikipedia_api_sample_response.json"
     pl_wiki = "pl_wikipedia_api_sample_response.json"
 
 
 @unique
 class EventsReponseMocks(str, Enum):
-    en_events = "en_feed_events_sample_response.json"
     pl_events = "pl_feed_events_sample_response.json"
 
 
