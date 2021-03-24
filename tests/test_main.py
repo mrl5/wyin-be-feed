@@ -4,7 +4,6 @@
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
 import pytest
-from fastapi import HTTPException
 from httpx import AsyncClient
 
 from feed.main import allowed_origins, app
@@ -66,3 +65,11 @@ async def test_cors_headers(params, monkeypatch):
     async with AsyncClient(app=app, base_url="http://test") as ac:
         response = await ac.get("/history/events", params=params, headers=headers)
     assert response.headers["access-control-allow-origin"] in allowed_origins
+
+
+@pytest.mark.asyncio
+async def test_http_timeout(monkeypatch):
+    monkeypatch_history_events_handler(monkeypatch, force_timeout=True)
+    async with AsyncClient(app=app, base_url="http://test") as ac:
+        response = await ac.get("/history/events", params={"t": "10:20"})
+    assert response.status_code == 504
