@@ -7,7 +7,10 @@ import json
 from enum import Enum, unique
 from pathlib import Path
 
+from httpx import AsyncClient
+
 from feed.handlers.history import Events
+from feed.utils.wikipedia_api import query_year
 
 CWD = Path(__file__).resolve().parent
 
@@ -40,9 +43,15 @@ def get_events_response(key: str) -> dict:
     return _json_to_dict(path)
 
 
-def monkeypatch_history_events_handler(monkeypatch):
+def monkeypatch_history_events_handler(monkeypatch, force_timeout=False):
     async def mockreturn(self):
         self._time_to_year_converter(self._params.t)
-        return get_wiki_response("pl_wiki")
+        if force_timeout:
+            lang = "pl"
+            client = AsyncClient(app=None, timeout=0.0)
+            async with client:
+                return await query_year("1000", lang, client)
+        else:
+            return get_wiki_response("pl_wiki")
 
     monkeypatch.setattr(Events, "_get_wiki_response", mockreturn)
