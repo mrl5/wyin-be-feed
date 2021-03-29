@@ -24,7 +24,7 @@ async def catch_exceptions_middleware(request: Request, call_next):
     except TimeoutException as te:
         return JSONResponse(status_code=504, content={"body": str(te)})
     except Exception:
-        return JSONResponse(status_code=500, content={"body": "Internal server error"})
+        return JSONResponse(status_code=500, content={"body": "Internal Server Error"})
 
 
 def replace_false_422(openapi_schema, true_status_code: int = 400):

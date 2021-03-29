@@ -14,11 +14,11 @@ languages = ("pl", "en")
 wiki_extracts = [
     (
         get_wiki_response("en_wiki"),
-        get_wiki_response("en_wiki")["query"]["pages"]["39974"]["extract"],
+        get_wiki_response("en_wiki")["query"]["pages"]["35205"]["extract"],
     ),
     (
         get_wiki_response("pl_wiki"),
-        get_wiki_response("pl_wiki")["query"]["pages"]["13907"]["extract"],
+        get_wiki_response("pl_wiki")["query"]["pages"]["18576"]["extract"],
     ),
 ]
 
@@ -34,7 +34,7 @@ def client():
 async def test_query_year(client, lang):
     client.params.update({"lang": lang})  # this is needed only to parametrize fake_app
     async with client:
-        response = await query_year("1000", lang, client)
+        response = await query_year(13, lang, client)
     assert response == get_wiki_response(f"{lang}_wiki")
 
 
