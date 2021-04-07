@@ -29,14 +29,14 @@ async def search_entities(keyword: str, lang: str, client: AsyncClient) -> dict:
     return response.json()
 
 
-async def get_entities(title: str, lang: str, client: AsyncClient) -> dict:
+async def get_entities(title_id: str, lang: str, client: AsyncClient) -> dict:
     client.params.update({"language": lang})
     params = {
         "action": "wbgetentities",
         "format": "json",
         "props": "sitelinks",
         "sitefilter": f"{lang}wiki",
-        "ids": title,
+        "ids": title_id,
     }
     response = await query(client, **params)
     return response.json()
