@@ -5,7 +5,7 @@
 
 from datetime import datetime
 
-import roman
+from roman import toRoman
 
 from feed.errors import BeforeCommonEraError, FutureYearError
 
@@ -18,10 +18,13 @@ def convert_time_to_year(time: str) -> int:
 
 
 def convert_year_to_century(year: int) -> str:
+    throw_on_invalid_year(year)
     century = -(-year // 100)
-    century_roman = roman.toRoman(century)
-
-    if year == 0:
-        raise BeforeCommonEraError(f"this year is from before common era")
-
+    century_roman = toRoman(century)
     return century_roman
+
+
+def throw_on_invalid_year(year: int) -> None:
+    assert year >= 0
+    if year == 0:
+        raise BeforeCommonEraError(f"this year is from before common era: {year}")
