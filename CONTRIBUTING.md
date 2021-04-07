@@ -62,6 +62,12 @@ pytest --disable-socket --cov=feed/ tests/
 
 
 ## Running linter
+This is absolute minimum
+```
+black .
+isort --profile black .
+```
+This is preferred
 ```
 make lint
 ```
