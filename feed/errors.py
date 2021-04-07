@@ -12,3 +12,8 @@ class FutureYearError(Exception):
 class BeforeCommonEraError(Exception):
     def __init__(self, msg):
         self.msg = msg
+
+
+class UnsupportedLanguageError(Exception):
+    def __init__(self, msg):
+        self.msg = msg

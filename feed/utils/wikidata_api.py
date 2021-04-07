@@ -4,7 +4,9 @@
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
 from httpx import URL, AsyncClient, Response
+from roman import InvalidRomanNumeralError, fromRoman
 
+from feed.errors import UnsupportedLanguageError
 from feed.utils.http_factory import get_async_client
 
 
@@ -14,6 +16,21 @@ async def get_wikipedia_title_for_year(
     client = client if client is not None else get_async_client()
     entities = await search_entities(str(year), lang, client)
     title_id = get_title_id(entities, "year")
+    entities = await get_entities(title_id, lang, client)
+    return get_title(entities, title_id, lang)
+
+
+async def get_wikipedia_title_for_century(
+    century: str, lang: str, client: AsyncClient = None
+) -> str:
+    supported_languages = ["pl"]
+    throw_on_unsupported_language(lang, supported_languages)
+    throw_on_bad_roman_number(century)
+
+    client = client if client is not None else get_async_client()
+    keyword = f"{century} wiek"
+    entities = await search_entities(keyword, lang, client)
+    title_id = get_title_id(entities, "century")
     entities = await get_entities(title_id, lang, client)
     return get_title(entities, title_id, lang)
 
@@ -55,5 +72,16 @@ def get_title_id(entities: dict, description: str) -> str:
     return item["id"]
 
 
-def get_title(entities: dict, title_id: str, lang: str):
+def get_title(entities: dict, title_id: str, lang: str) -> str:
     return entities["entities"][title_id]["sitelinks"][f"{lang}wiki"]["title"]
+
+
+def throw_on_bad_roman_number(roman_number: str) -> None:
+    if not isinstance(roman_number, str):
+        raise InvalidRomanNumeralError(roman_number)
+    fromRoman(roman_number)
+
+
+def throw_on_unsupported_language(language: str, supported_languages: list) -> None:
+    if language not in supported_languages:
+        raise UnsupportedLanguageError(f"unsupported language: {language}")

@@ -14,11 +14,15 @@ WIKIDATA_ACTIONS = ["wbsearchentities", "wbgetentities"]
 
 
 @fake_app.get("/w/api.php")
-async def wiki_api(language: str, action: str):
+async def wiki_api(language: str, action: str, search: str = None, ids: str = None):
     if action == "wbsearchentities":
+        if language == "pl" and search is not None and search.endswith("wiek"):
+            return get_wiki_response(f"{language}_wikidata_search_entities_century")
         return get_wiki_response(f"{language}_wikidata_search_entities")
 
     elif action == "wbgetentities":
+        if ids == "Q8052":
+            return get_wiki_response(f"{language}_wikidata_get_entities_century")
         return get_wiki_response(f"{language}_wikidata_get_entities")
 
     raise NotImplementedError(f"this action is not supported: {action}")

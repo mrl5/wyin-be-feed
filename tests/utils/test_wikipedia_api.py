@@ -6,7 +6,7 @@
 import pytest
 from httpx import AsyncClient
 
-from feed.utils.wikipedia_api import get_wiki_page_content, query_year
+from feed.utils.wikipedia_api import get_wiki_page_content, query_century, query_year
 from tests.mocks.fake_wikipedia_api import fake_app
 from tests.mocks.mock_factory import get_wiki_response
 
@@ -36,6 +36,15 @@ async def test_query_year(client, lang):
     async with client:
         response = await query_year(13, lang, client)
     assert response == get_wiki_response(f"{lang}_wiki")
+
+
+@pytest.mark.asyncio
+async def test_query_century(client):
+    lang = "pl"
+    client.params.update({"lang": lang})  # this is needed only to parametrize fake_app
+    async with client:
+        response = await query_century("X", lang, client)
+    assert response == get_wiki_response(f"{lang}_wiki_century")
 
 
 @pytest.mark.parametrize("wiki_api_response, wiki_page_content", wiki_extracts)
