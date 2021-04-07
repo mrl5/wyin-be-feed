@@ -7,3 +7,8 @@
 class FutureYearError(Exception):
     def __init__(self, msg):
         self.msg = msg
+
+
+class BeforeCommonEraError(Exception):
+    def __init__(self, msg):
+        self.msg = msg
