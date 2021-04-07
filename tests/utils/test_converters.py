@@ -17,7 +17,7 @@ unconvertable_times = [
 ]
 
 year_century = [(1000, "X"), (999, "X"), (1001, "XI"), (813, "IX"), (1, "I")]
-year_century_exceptions = [(0, BeforeCommonEraError)]
+year_century_exceptions = [(0, BeforeCommonEraError), (-1, AssertionError)]
 
 
 @pytest.mark.parametrize("time, year", time_year)
