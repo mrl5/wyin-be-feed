@@ -10,7 +10,7 @@ from feed.utils.wikipedia_api import get_wiki_page_content
 from tests.mocks.mock_factory import get_wiki_response
 
 mock_html = get_wiki_page_content(get_wiki_response("pl_wiki_century"))
-disambiguation_mock_html = "<li>bitwa pod Stalingradem (1942–1943)</li><li>Lech Wałęsa (ur. 1943) – prezydent RP</li>"
+mock_ambiguous_html = "<li>bitwa pod Stalingradem (1942–1943)</li><li>Lech Wałęsa (ur. 1943) – prezydent RP</li>"
 year_events = [
     (908, "908 - w Bagdadzie odnotowano opady śniegu", mock_html),
     (
@@ -25,8 +25,8 @@ year_events = [
     ),
     (911, None, mock_html),
     (912, None, mock_html),
-    (1942, "bitwa pod Stalingradem (1942–1943)", disambiguation_mock_html),
-    (1943, "Lech Wałęsa (ur. 1943) – prezydent RP", disambiguation_mock_html),
+    (1942, "bitwa pod Stalingradem (1942–1943)", mock_ambiguous_html),
+    (1943, "Lech Wałęsa (ur. 1943) – prezydent RP", mock_ambiguous_html),
 ]
 
 
