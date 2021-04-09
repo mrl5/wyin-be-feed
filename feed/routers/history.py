@@ -5,11 +5,24 @@
 
 from fastapi import APIRouter, Query
 
-from feed.handlers.history import Events
+from feed.handlers.history import Event, Events
 from feed.interfaces.handlers import IHttpRequestHandler
-from feed.models.history import WikiUnprocessedModel
+from feed.models.history import SingleHistoryEventModel, WikiUnprocessedModel
 
 router = APIRouter(prefix="/history", tags=["history"])
+
+
+@router.get("/event", response_model=SingleHistoryEventModel)
+async def get_event(
+    t: str = Query(
+        ...,
+        regex="^[0-9]{1,2}(:|%3A)[0-9]{2}$",
+        title="time",
+        description="24-hour clock time in %H:%M format",
+    )
+):
+    h: IHttpRequestHandler = Event(locals())
+    return await h.handle()
 
 
 @router.get("/events", response_model=WikiUnprocessedModel)
@@ -18,7 +31,7 @@ async def get_events(
         ...,
         regex="^[0-9]{1,2}(:|%3A)[0-9]{2}$",
         title="time",
-        description="24-hour clock time in %H:M% format",
+        description="24-hour clock time in %H:%M format",
     )
 ):
     h: IHttpRequestHandler = Events(locals())

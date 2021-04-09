@@ -4,6 +4,7 @@
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
 from enum import Enum, unique
+from typing import Optional
 
 from pydantic import BaseModel
 
@@ -22,3 +23,7 @@ class WikiTextExtractsEnum(str, Enum):
 class WikiUnprocessedModel(BaseModel):
     type: WikiTextExtractsEnum
     data: str
+
+
+class SingleHistoryEventModel(BaseModel):
+    data: Optional[str]

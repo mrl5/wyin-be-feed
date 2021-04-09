@@ -9,8 +9,8 @@ from pathlib import Path
 
 from httpx import AsyncClient
 
-from feed.handlers.history import Events
-from feed.utils.wikipedia_api import query_year
+from feed.handlers.history import Event, Events
+from feed.utils.wikipedia_api import query_century, query_year
 
 CWD = Path(__file__).resolve().parent
 
@@ -40,6 +40,11 @@ class WikiResponseMocks(str, Enum):
 
 
 @unique
+class EventReponseMocks(str, Enum):
+    pl_event = "pl_feed_event_sample_response.json"
+
+
+@unique
 class EventsReponseMocks(str, Enum):
     pl_events = "pl_feed_events_sample_response.json"
 
@@ -55,9 +60,27 @@ def get_wiki_response(key: str) -> dict:
     return _json_to_dict(path)
 
 
+def get_event_response(key: str) -> dict:
+    path = CWD / EventReponseMocks[key].value
+    return _json_to_dict(path)
+
+
 def get_events_response(key: str) -> dict:
     path = CWD / EventsReponseMocks[key].value
     return _json_to_dict(path)
+
+
+def monkeypatch_history_event_handler(monkeypatch, force_timeout=False):
+    async def mockreturn(self):
+        self._time_to_year_converter(self._params.t)
+        if force_timeout:
+            lang = "pl"
+            client = AsyncClient(app=None, timeout=0.0)
+            async with client:
+                return await query_century("X", lang, client)
+        return get_wiki_response("pl_wiki_century")
+
+    monkeypatch.setattr(Event, "_get_wiki_response", mockreturn)
 
 
 def monkeypatch_history_events_handler(monkeypatch, force_timeout=False):
