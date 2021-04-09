@@ -13,7 +13,7 @@ def get_year_event_from_century_page(year: int, century_page: str) -> Optional[s
     soup = BeautifulSoup(century_page, features="html.parser")
     pattern = re.compile(
         rf"""        # https://www.python.org/dev/peps/pep-0498/#raw-f-strings
-        [^/]         # / is negated character (see: https://www.regular-expressions.info/charclass.html)
+        [^/\-\–]     # negated characters (see: https://www.regular-expressions.info/charclass.html)
         {str(year)}  # injected year variable as f-string
 
         |            # https://www.regular-expressions.info/alternation.html
