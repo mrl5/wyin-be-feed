@@ -1,4 +1,5 @@
-fastapi
-httpx==0.17.*
+beautifulsoup4==4.9.3
+fastapi==0.63.0
+httpx==0.17.1
 roman==3.3
-uvicorn
+uvicorn==0.13.4

@@ -13,8 +13,17 @@ fake_app = FastAPI()
 
 
 @fake_app.get("/w/api.php")
-async def wiki_api(lang: str, action: str = None):
+async def wiki_api(
+    lang: str,
+    action: str = None,
+    titles: str = None,
+    search: str = None,
+    ids: str = None,
+):
     if action in WIKIDATA_ACTIONS:
-        return await wikidata_api(lang, action)
+        return await wikidata_api(lang, action, search, ids)
+
+    if lang == "pl" and titles is not None and titles.endswith("wiek"):
+        return get_wiki_response(f"{lang}_wiki_century")
 
     return get_wiki_response(f"{lang}_wiki")
