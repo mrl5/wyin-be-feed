@@ -15,7 +15,7 @@ async def get_wikipedia_title_for_year(
 ) -> str:
     client = client if client is not None else get_async_client()
     entities = await search_entities(str(year), lang, client)
-    title_id = get_title_id(entities, "year")
+    title_id = get_title_id(entities, description="year")
     entities = await get_entities(title_id, lang, client)
     return get_title(entities, title_id, lang)
 
@@ -30,7 +30,7 @@ async def get_wikipedia_title_for_century(
     client = client if client is not None else get_async_client()
     keyword = f"{century} wiek"
     entities = await search_entities(keyword, lang, client)
-    title_id = get_title_id(entities, "century")
+    title_id = get_title_id(entities, label="century")
     entities = await get_entities(title_id, lang, client)
     return get_title(entities, title_id, lang)
 
@@ -65,10 +65,19 @@ async def query(client: AsyncClient, **kwargs) -> Response:
         return await client.get("/w/api.php", params=kwargs)
 
 
-def get_title_id(entities: dict, description: str) -> str:
-    item = next(
-        item for item in entities["search"] if item["description"] == description
-    )
+def get_title_id(entities: dict, description: str = None, label: str = None) -> str:
+    if (description is None and label is None) or (
+        description is not None and label is not None
+    ):
+        raise ValueError("either description or label must be specified")
+    if description is not None:
+        item = next(
+            item for item in entities["search"] if item["description"] == description
+        )
+    if label is not None:
+        item = next(
+            item for item in entities["search"] if item["label"].endswith(label)
+        )
     return item["id"]
 
 

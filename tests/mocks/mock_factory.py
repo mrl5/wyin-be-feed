@@ -33,8 +33,17 @@ class WikiResponseMocks(str, Enum):
     pl_wikidata_search_entities_century = (
         "pl_wikidata_api_wbsearchentities_century.json"
     )
+    pl_wikidata_search_entities_century_19 = (
+        "pl_wikidata_api_wbsearchentities_century_19.json"
+    )
     # https://www.wikidata.org/w/api.php?action=wbgetentities&format=json&props=sitelinks&sitefilter=plwiki&ids=Q8052
     pl_wikidata_get_entities_century = "pl_wikidata_api_wbgetentities_century.json"
+    pl_wikidata_get_entities_century_19 = (
+        "pl_wikidata_api_wbgetentities_century_19.json"
+    )
+    pl_wikidata_get_entities_century_19bc = (
+        "pl_wikidata_api_wbgetentities_century_19bc.json"
+    )
     # https://pl.wikipedia.org/w/api.php?action=query&prop=extracts&format=json&titles=X%20wiek
     pl_wiki_century = "pl_wikipedia_api_century.json"
 
