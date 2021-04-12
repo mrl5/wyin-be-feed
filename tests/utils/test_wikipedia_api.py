@@ -13,12 +13,12 @@ from tests.mocks.mock_factory import get_wiki_response
 languages = ("pl", "en")
 wiki_extracts = [
     (
-        get_wiki_response("en_wiki"),
-        get_wiki_response("en_wiki")["query"]["pages"]["35205"]["extract"],
+        get_wiki_response("en_wiki_year"),
+        get_wiki_response("en_wiki_year")["query"]["pages"]["35205"]["extract"],
     ),
     (
-        get_wiki_response("pl_wiki"),
-        get_wiki_response("pl_wiki")["query"]["pages"]["18576"]["extract"],
+        get_wiki_response("pl_wiki_year"),
+        get_wiki_response("pl_wiki_year")["query"]["pages"]["18576"]["extract"],
     ),
 ]
 
@@ -35,7 +35,7 @@ async def test_query_year(client, lang):
     client.params.update({"lang": lang})  # this is needed only to parametrize fake_app
     async with client:
         response = await query_year(13, lang, client)
-    assert response == get_wiki_response(f"{lang}_wiki")
+    assert response == get_wiki_response(f"{lang}_wiki_year")
 
 
 @pytest.mark.asyncio

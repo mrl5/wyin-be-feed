@@ -4,9 +4,11 @@
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
 import re
+from random import choice
 from typing import Optional
 
 from bs4 import BeautifulSoup
+from bs4.element import NavigableString
 
 
 def get_year_event_from_century_page(year: int, century_page: str) -> Optional[str]:
@@ -29,3 +31,10 @@ def get_year_event_from_century_page(year: int, century_page: str) -> Optional[s
         text = tag.get_text()
         return None if text.endswith(" -") else text
     return None
+
+
+def get_random_event_from_year_page(year_page: str) -> str:
+    soup = BeautifulSoup(year_page, features="html.parser")
+    tags = soup.find_all(name="li")
+    leaf_tags = [tag for tag in tags if isinstance(next(tag.children), NavigableString)]
+    return choice(leaf_tags).get_text()

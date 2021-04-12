@@ -4,7 +4,7 @@
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
 from time import strptime
-from typing import Callable, Optional
+from typing import Callable
 
 from pydantic import BaseModel, validator
 
@@ -16,7 +16,10 @@ from feed.models.history import (
     WikiUnprocessedModel,
 )
 from feed.utils.converters import convert_time_to_year, convert_year_to_century
-from feed.utils.scrapers import get_year_event_from_century_page
+from feed.utils.scrapers import (
+    get_random_event_from_year_page,
+    get_year_event_from_century_page,
+)
 from feed.utils.wikipedia_api import get_wiki_page_content, query_century, query_year
 
 
@@ -42,20 +45,27 @@ class Event(IHttpRequestHandler):
         self._time_to_year_converter: Callable[[str], int] = convert_time_to_year
         self._year_to_century_converter: Callable[[int], str] = convert_year_to_century
         self._html_extractor: Callable[[dict], str] = get_wiki_page_content
-        self._data_extractor: Callable[
-            [int, str], Optional[str]
-        ] = get_year_event_from_century_page
 
     async def handle(self) -> SingleHistoryEventModel:
         self._year = self._time_to_year_converter(self._params.t)
-        response = await self._get_wiki_response()
+        response = await self._get_century_response()
         html = self._html_extractor(response)
-        data = self._data_extractor(self._year, html)
+        data = get_year_event_from_century_page(self._year, html)
+
+        if data is not None:
+            return SingleHistoryEventModel(data=data)
+
+        response = await self._get_year_response()
+        html = self._html_extractor(response)
+        data = get_random_event_from_year_page(html)
         return SingleHistoryEventModel(data=data)
 
-    async def _get_wiki_response(self) -> dict:
+    async def _get_century_response(self) -> dict:
         century = self._year_to_century_converter(self._year)
         return await query_century(century, self._lang)
+
+    async def _get_year_response(self) -> dict:
+        return await query_year(self._year, self._lang)
 
 
 class Events(IHttpRequestHandler):

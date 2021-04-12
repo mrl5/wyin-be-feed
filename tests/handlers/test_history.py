@@ -13,12 +13,10 @@ from feed.interfaces.handlers import IHttpRequestHandler
 from tests.mocks.mock_factory import (
     get_event_response,
     get_events_response,
+    get_wiki_response,
     monkeypatch_history_event_handler,
     monkeypatch_history_events_handler,
 )
-
-valid_time_params = ({"t": "9:08"}, {"t": "09%3A08"})
-invalid_time_params = ({"t": "24:00"}, {"t": "10:60"})
 
 
 @unique
@@ -33,6 +31,9 @@ def handler_factory(key, params) -> IHttpRequestHandler:
     return a_object
 
 
+valid_time_params = ({"t": "9:08"}, {"t": "09%3A08"})
+invalid_time_params = ({"t": "24:00"}, {"t": "10:60"})
+
 handlers = tuple(
     [
         handler_factory(named_value.name, valid_time_params[0])
@@ -40,11 +41,25 @@ handlers = tuple(
     ]
 )
 
+fallback_cases = [
+    (
+        handler_factory("event", {"t": "9:12"}),
+        get_wiki_response("pl_wiki_year_912")["query"]["pages"]["13551"]["extract"],
+    )
+]
+
 
 @pytest.fixture(scope="function")
 def event_handler(monkeypatch):
     monkeypatch_history_event_handler(monkeypatch)
     o = handler_factory("event", valid_time_params[0])
+    return o
+
+
+@pytest.fixture(scope="function")
+def event_handler_912(monkeypatch):
+    monkeypatch_history_event_handler(monkeypatch)
+    o = handler_factory("event", {"t": "9:12"})
     return o
 
 
@@ -73,6 +88,15 @@ async def test_event_exceptions(invalid_time_param):
     with pytest.raises(ValidationError):
         handler = handler_factory("event", invalid_time_param)
         await handler.handle()
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("handler, source", fallback_cases)
+async def test_event_fallback(handler, source, monkeypatch):
+    monkeypatch_history_event_handler(monkeypatch)
+    result = await handler.handle()
+    assert result.dict()["data"] is not None
+    assert source.find(result.dict()["data"]) > 0
 
 
 @pytest.mark.asyncio
