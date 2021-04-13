@@ -18,16 +18,21 @@ CWD = Path(__file__).resolve().parent
 @unique
 class WikiResponseMocks(str, Enum):
     # https://www.wikidata.org/w/api.php?action=wbsearchentities&format=json&language=en&search=13
-    en_wikidata_search_entities = "en_wikidata_api_wbsearchentities.json"
-    pl_wikidata_search_entities = "pl_wikidata_api_wbsearchentities.json"
+    en_wikidata_search_entities_year = "en_wikidata_api_wbsearchentities_year.json"
+    pl_wikidata_search_entities_year = "pl_wikidata_api_wbsearchentities_year.json"
+    pl_wikidata_search_entities_year_912 = (
+        "pl_wikidata_api_wbsearchentities_year_912.json"
+    )
 
     # https://www.wikidata.org/w/api.php?action=wbgetentities&format=json&props=sitelinks&sitefilter=enwiki&ids=Q23411
-    en_wikidata_get_entities = "en_wikidata_api_wbgetentities.json"
-    pl_wikidata_get_entities = "pl_wikidata_api_wbgetentities.json"
+    en_wikidata_get_entities_year = "en_wikidata_api_wbgetentities_year.json"
+    pl_wikidata_get_entities_year = "pl_wikidata_api_wbgetentities_year.json"
+    pl_wikidata_get_entities_year_912 = "pl_wikidata_api_wbgetentities_year_912.json"
 
     # https://en.wikipedia.org/w/api.php?action=query&prop=extracts&format=json&titles=AD%2013
-    en_wiki = "en_wikipedia_api_sample_response.json"
-    pl_wiki = "pl_wikipedia_api_sample_response.json"
+    en_wiki_year = "en_wikipedia_api_year.json"
+    pl_wiki_year = "pl_wikipedia_api_year.json"
+    pl_wiki_year_912 = "pl_wikipedia_api_year_912.json"
 
     # https://www.wikidata.org/w/api.php?action=wbsearchentities&format=json&language=pl&search=X%20wiek
     pl_wikidata_search_entities_century = (
@@ -80,7 +85,7 @@ def get_events_response(key: str) -> dict:
 
 
 def monkeypatch_history_event_handler(monkeypatch, force_timeout=False):
-    async def mockreturn(self):
+    async def century_mockreturn(self):
         self._time_to_year_converter(self._params.t)
         if force_timeout:
             lang = "pl"
@@ -89,7 +94,17 @@ def monkeypatch_history_event_handler(monkeypatch, force_timeout=False):
                 return await query_century("X", lang, client)
         return get_wiki_response("pl_wiki_century")
 
-    monkeypatch.setattr(Event, "_get_wiki_response", mockreturn)
+    async def year_mockreturn(self):
+        self._time_to_year_converter(self._params.t)
+        if force_timeout:
+            lang = "pl"
+            client = AsyncClient(app=None, timeout=0.0)
+            async with client:
+                return await query_year("912", lang, client)
+        return get_wiki_response("pl_wiki_year_912")
+
+    monkeypatch.setattr(Event, "_get_century_response", century_mockreturn)
+    monkeypatch.setattr(Event, "_get_year_response", year_mockreturn)
 
 
 def monkeypatch_history_events_handler(monkeypatch, force_timeout=False):
@@ -100,6 +115,6 @@ def monkeypatch_history_events_handler(monkeypatch, force_timeout=False):
             client = AsyncClient(app=None, timeout=0.0)
             async with client:
                 return await query_year("1000", lang, client)
-        return get_wiki_response("pl_wiki")
+        return get_wiki_response("pl_wiki_year")
 
     monkeypatch.setattr(Events, "_get_wiki_response", mockreturn)

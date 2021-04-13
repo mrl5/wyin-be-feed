@@ -26,4 +26,7 @@ async def wiki_api(
     if lang == "pl" and titles is not None and titles.endswith("wiek"):
         return get_wiki_response(f"{lang}_wiki_century")
 
-    return get_wiki_response(f"{lang}_wiki")
+    if lang == "pl" and titles is not None and titles == "912":
+        return get_wiki_response(f"{lang}_wiki_year_912")
+
+    return get_wiki_response(f"{lang}_wiki_year")

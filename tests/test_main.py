@@ -62,16 +62,6 @@ async def test_history_event(status_code, params, monkeypatch):
 
 
 @pytest.mark.asyncio
-# todo: delete this test when WYIN-79 is implemented
-async def test_history_event_null_response(monkeypatch):
-    monkeypatch_history_event_handler(monkeypatch)
-    async with AsyncClient(app=app, base_url="http://test") as ac:
-        response = await ac.get("/history/event", params={"t": "9:12"})
-    assert response.status_code == 200
-    assert response.json() == {"data": None}
-
-
-@pytest.mark.asyncio
 @pytest.mark.parametrize("status_code, params", history_events_cases)
 async def test_history_events(status_code, params, monkeypatch):
     monkeypatch_history_events_handler(monkeypatch)

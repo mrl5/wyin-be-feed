@@ -17,20 +17,31 @@ WIKIDATA_ACTIONS = ["wbsearchentities", "wbgetentities"]
 async def wiki_api(language: str, action: str, search: str = None, ids: str = None):
     if action == "wbsearchentities":
         if language == "pl" and search is not None and search.endswith("wiek"):
+
             if search == "XIX wiek":
                 return get_wiki_response(
                     f"{language}_wikidata_search_entities_century_19"
                 )
             return get_wiki_response(f"{language}_wikidata_search_entities_century")
-        return get_wiki_response(f"{language}_wikidata_search_entities")
+
+        if language == "pl" and search is not None and search == "912":
+            return get_wiki_response(f"{language}_wikidata_search_entities_year_912")
+
+        return get_wiki_response(f"{language}_wikidata_search_entities_year")
 
     elif action == "wbgetentities":
         if ids == "Q8052":
             return get_wiki_response(f"{language}_wikidata_get_entities_century")
+
         if ids == "Q6955":
             return get_wiki_response(f"{language}_wikidata_get_entities_century_19")
+
         if ids == "Q186674":
             return get_wiki_response(f"{language}_wikidata_get_entities_century_19bc")
-        return get_wiki_response(f"{language}_wikidata_get_entities")
+
+        if ids == "Q23837":
+            return get_wiki_response(f"{language}_wikidata_get_entities_year_912")
+
+        return get_wiki_response(f"{language}_wikidata_get_entities_year")
 
     raise NotImplementedError(f"this action is not supported: {action}")
