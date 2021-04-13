@@ -3,7 +3,7 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-from httpx import URL, AsyncClient, Response
+from httpx import AsyncClient, Response
 
 from feed.utils.http_factory import get_async_client
 from feed.utils.wikidata_api import (
@@ -27,10 +27,8 @@ async def query_century(century: str, lang: str, client: AsyncClient = None) -> 
 
 
 async def query(title: str, lang: str, client: AsyncClient) -> Response:
-    client.base_url = URL(f"https://{lang}.wikipedia.org")
-    client.params.update({"action": "query", "prop": "extracts", "format": "json"})
-    async with client:
-        return await client.get("/w/api.php", params={"titles": title})
+    params = {"action": "query", "prop": "extracts", "format": "json", "titles": title}
+    return await client.get(f"https://{lang}.wikipedia.org/w/api.php", params=params)
 
 
 def get_wiki_page_content(json_response: dict) -> str:

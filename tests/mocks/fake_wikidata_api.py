@@ -17,12 +17,14 @@ WIKIDATA_ACTIONS = ["wbsearchentities", "wbgetentities"]
 async def wiki_api(language: str, action: str, search: str = None, ids: str = None):
     if action == "wbsearchentities":
         if language == "pl" and search is not None and search.endswith("wiek"):
-
             if search == "XIX wiek":
                 return get_wiki_response(
                     f"{language}_wikidata_search_entities_century_19"
                 )
             return get_wiki_response(f"{language}_wikidata_search_entities_century")
+
+        if language == "pl" and search is not None and search == "908":
+            return get_wiki_response(f"{language}_wikidata_search_entities_year_908")
 
         if language == "pl" and search is not None and search == "912":
             return get_wiki_response(f"{language}_wikidata_search_entities_year_912")
@@ -41,6 +43,24 @@ async def wiki_api(language: str, action: str, search: str = None, ids: str = No
 
         if ids == "Q23837":
             return get_wiki_response(f"{language}_wikidata_get_entities_year_912")
+
+        if ids == "Q8052|Q30463":
+            Q8052 = get_wiki_response(f"{language}_wikidata_get_entities_century")[
+                "entities"
+            ]
+            Q30463 = get_wiki_response(f"{language}_wikidata_get_entities_year_908")[
+                "entities"
+            ]
+            return {"entities": {**Q8052, **Q30463}}
+
+        if ids == "Q8052|Q23837":
+            Q8052 = get_wiki_response(f"{language}_wikidata_get_entities_century")[
+                "entities"
+            ]
+            Q23837 = get_wiki_response(f"{language}_wikidata_get_entities_year_912")[
+                "entities"
+            ]
+            return {"entities": {**Q8052, **Q23837}}
 
         return get_wiki_response(f"{language}_wikidata_get_entities_year")
 

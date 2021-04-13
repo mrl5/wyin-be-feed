@@ -3,11 +3,48 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-from httpx import URL, AsyncClient, Response
+import sys
+
+if sys.version_info < (3, 8):
+    from typing_extensions import TypedDict
+else:
+    from typing import TypedDict
+
+from asyncio import gather
+
+from httpx import AsyncClient, Response
 from roman import InvalidRomanNumeralError, fromRoman
 
 from feed.errors import UnsupportedLanguageError
+from feed.utils.converters import convert_year_to_century
 from feed.utils.http_factory import get_async_client
+
+
+class CenturyAndYearTitles(TypedDict):
+    century_title: str
+    year_title: str
+
+
+async def get_wikipedia_titles_for_century_and_year(
+    year: int, lang: str, client: AsyncClient = None
+) -> CenturyAndYearTitles:
+    client = client if client is not None else get_async_client()
+    century = convert_year_to_century(year)
+
+    century_entities, year_entities = await gather(
+        search_entities(get_century_keyword(century), lang, client),
+        search_entities(str(year), lang, client),
+    )
+
+    century_title_id = get_century_title_id(century_entities)
+    year_title_id = get_year_title_id(year_entities)
+    ids = "|".join([century_title_id, year_title_id])
+    entities = await get_entities(ids, lang, client)
+
+    return {
+        "century_title": get_title(entities, century_title_id, lang),
+        "year_title": get_title(entities, year_title_id, lang),
+    }
 
 
 async def get_wikipedia_title_for_year(
@@ -15,7 +52,7 @@ async def get_wikipedia_title_for_year(
 ) -> str:
     client = client if client is not None else get_async_client()
     entities = await search_entities(str(year), lang, client)
-    title_id = get_title_id(entities, description="year")
+    title_id = get_year_title_id(entities)
     entities = await get_entities(title_id, lang, client)
     return get_title(entities, title_id, lang)
 
@@ -23,14 +60,10 @@ async def get_wikipedia_title_for_year(
 async def get_wikipedia_title_for_century(
     century: str, lang: str, client: AsyncClient = None
 ) -> str:
-    supported_languages = ["pl"]
-    throw_on_unsupported_language(lang, supported_languages)
-    throw_on_bad_roman_number(century)
-
     client = client if client is not None else get_async_client()
-    keyword = f"{century} wiek"
+    keyword = get_century_keyword(century, lang)
     entities = await search_entities(keyword, lang, client)
-    title_id = get_title_id(entities, label="century")
+    title_id = get_century_title_id(entities)
     entities = await get_entities(title_id, lang, client)
     return get_title(entities, title_id, lang)
 
@@ -47,22 +80,35 @@ async def search_entities(keyword: str, lang: str, client: AsyncClient) -> dict:
 
 
 async def get_entities(title_id: str, lang: str, client: AsyncClient) -> dict:
-    client.params.update({"language": lang})
     params = {
         "action": "wbgetentities",
         "format": "json",
         "props": "sitelinks",
         "sitefilter": f"{lang}wiki",
         "ids": title_id,
+        "language": lang,
     }
     response = await query(client, **params)
     return response.json()
 
 
 async def query(client: AsyncClient, **kwargs) -> Response:
-    client.base_url = URL("https://www.wikidata.org")
-    async with client:
-        return await client.get("/w/api.php", params=kwargs)
+    return await client.get("https://www.wikidata.org/w/api.php", params=kwargs)
+
+
+def get_century_keyword(century: str, lang: str = "pl") -> str:
+    supported_languages = ["pl"]
+    throw_on_unsupported_language(lang, supported_languages)
+    throw_on_bad_roman_number(century)
+    return f"{century} wiek"
+
+
+def get_century_title_id(entities: dict) -> str:
+    return get_title_id(entities, label="century")
+
+
+def get_year_title_id(entities: dict) -> str:
+    return get_title_id(entities, description="year")
 
 
 def get_title_id(entities: dict, description: str = None, label: str = None) -> str:

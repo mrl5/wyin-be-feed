@@ -14,7 +14,7 @@ fake_app = FastAPI()
 
 @fake_app.get("/w/api.php")
 async def wiki_api(
-    lang: str,
+    lang: str = "pl",
     action: str = None,
     titles: str = None,
     search: str = None,
