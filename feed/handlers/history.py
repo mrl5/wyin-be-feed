@@ -3,9 +3,11 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
+from asyncio import gather
 from time import strptime
 from typing import Callable
 
+from httpx import AsyncClient
 from pydantic import BaseModel, validator
 
 from feed.handlers.decorators import decode_request_params
@@ -15,12 +17,14 @@ from feed.models.history import (
     WikiTextExtractsEnum,
     WikiUnprocessedModel,
 )
-from feed.utils.converters import convert_time_to_year, convert_year_to_century
+from feed.utils.converters import convert_time_to_year
+from feed.utils.http_factory import get_async_client
 from feed.utils.scrapers import (
     get_random_event_from_year_page,
     get_year_event_from_century_page,
 )
-from feed.utils.wikipedia_api import get_wiki_page_content, query_century, query_year
+from feed.utils.wikidata_api import get_wikipedia_titles_for_century_and_year
+from feed.utils.wikipedia_api import get_wiki_page_content, query, query_year
 
 
 class EventParams(BaseModel):
@@ -37,35 +41,41 @@ class EventsParams(EventParams):
 
 
 class Event(IHttpRequestHandler):
+    _client: AsyncClient = get_async_client()
+    _year: int
+    _lang: str = "pl"
+
     @decode_request_params
     def __init__(self, params: dict):
         self._params = EventParams(**params)
-        self._year: int
-        self._lang = "pl"
-        self._time_to_year_converter: Callable[[str], int] = convert_time_to_year
-        self._year_to_century_converter: Callable[[int], str] = convert_year_to_century
-        self._html_extractor: Callable[[dict], str] = get_wiki_page_content
 
     async def handle(self) -> SingleHistoryEventModel:
-        self._year = self._time_to_year_converter(self._params.t)
-        response = await self._get_century_response()
-        html = self._html_extractor(response)
-        data = get_year_event_from_century_page(self._year, html)
+        self._year = convert_time_to_year(self._params.t)
+        async with self._client:
+            titles = await get_wikipedia_titles_for_century_and_year(
+                self._year, self._lang, self._client
+            )
+            century_resp, year_resp = await gather(
+                self._get_wiki_response(titles["century_title"]),
+                self._get_wiki_response(titles["year_title"]),
+            )
 
-        if data is not None:
-            return SingleHistoryEventModel(data=data)
-
-        response = await self._get_year_response()
-        html = self._html_extractor(response)
-        data = get_random_event_from_year_page(html)
+        data = self._get_historical_event(century_resp, year_resp)
         return SingleHistoryEventModel(data=data)
 
-    async def _get_century_response(self) -> dict:
-        century = self._year_to_century_converter(self._year)
-        return await query_century(century, self._lang)
+    async def _get_wiki_response(self, title: str) -> dict:
+        response = await query(title, self._lang, self._client)
+        return response.json()
 
-    async def _get_year_response(self) -> dict:
-        return await query_year(self._year, self._lang)
+    def _get_historical_event(self, century_resp: dict, year_resp: dict) -> str:
+        html = get_wiki_page_content(century_resp)
+        data = get_year_event_from_century_page(self._year, html)
+        if data is not None:
+            return data
+
+        html = get_wiki_page_content(year_resp)
+        data = get_random_event_from_year_page(html)
+        return data
 
 
 class Events(IHttpRequestHandler):

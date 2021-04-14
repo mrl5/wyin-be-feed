@@ -14,6 +14,8 @@ from tests.mocks.mock_factory import (
     get_event_response,
     get_events_response,
     get_wiki_response,
+)
+from tests.mocks.monkeypatches import (
     monkeypatch_history_event_handler,
     monkeypatch_history_events_handler,
 )

@@ -12,6 +12,7 @@ from feed.utils.wikidata_api import (
     get_title_id,
     get_wikipedia_title_for_century,
     get_wikipedia_title_for_year,
+    get_wikipedia_titles_for_century_and_year,
 )
 from tests.mocks.fake_wikidata_api import fake_app
 from tests.mocks.mock_factory import get_wiki_response
@@ -27,6 +28,8 @@ century_exceptions = [
     ("X1", "pl", InvalidRomanNumeralError),
     ("X", "en", UnsupportedLanguageError),
 ]
+
+century_year_cases = [("pl", 912, {"century_title": "X wiek", "year_title": "912"})]
 
 title_id_exceptions = [
     ({"description": None, "label": None}, ValueError),
@@ -61,6 +64,14 @@ async def test_get_wikipedia_title_for_century(lang, century, title, client):
 async def test_get_wikipedia_title_for_century_exceptions(century, lang, exception):
     with pytest.raises(exception):
         await get_wikipedia_title_for_century(century, lang)
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("lang, year, response", century_year_cases)
+async def test_get_wikipedia_titles_for_century_and_year(lang, year, response, client):
+    async with client:
+        result = await get_wikipedia_titles_for_century_and_year(year, lang, client)
+    assert result == response
 
 
 @pytest.mark.parametrize("kwargs, exception", title_id_exceptions)
