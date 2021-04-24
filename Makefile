@@ -25,7 +25,7 @@ lint:
 	pre-commit run --all-files
 
 test:
-	pytest --disable-socket --cov=feed/ tests/
+	pytest --disable-socket --cov=feed/ tests/ --junitxml=report.xml
 
 coverage-report:
 	coverage xml

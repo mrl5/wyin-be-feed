@@ -60,8 +60,10 @@ unit_test:
   script:
     - make test coverage-report
   artifacts:
+    when: always
     reports:
       cobertura: coverage.xml
+      junit: report.xml
 
 wily:
   stage: test
