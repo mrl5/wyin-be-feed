@@ -5,17 +5,20 @@
 
 from httpx import AsyncClient
 
-from feed.handlers.history import Event, Events
+from feed.handlers import history
+from feed.handlers.history import Events
 from feed.utils.wikipedia_api import query_year
 from tests.mocks.fake_wikipedia_api import fake_app
 from tests.mocks.mock_factory import get_wiki_response
 
 
 def monkeypatch_history_event_handler(monkeypatch, force_timeout=False):
-    app = None if force_timeout else fake_app
-    timeout = 0.0 if force_timeout else None
-    client = AsyncClient(app=app, timeout=timeout)
-    monkeypatch.setattr(Event, "_client", client)
+    def mockreturn():
+        app = None if force_timeout else fake_app
+        timeout = 0.0 if force_timeout else None
+        return AsyncClient(app=app, timeout=timeout)
+
+    monkeypatch.setattr(history, "get_async_client", mockreturn)
 
 
 def monkeypatch_history_events_handler(monkeypatch, force_timeout=False):
