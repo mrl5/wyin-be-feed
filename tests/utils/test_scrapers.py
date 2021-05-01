@@ -45,9 +45,7 @@ def test_get_year_event_from_century_page(year, event, century_page):
 
 @pytest.mark.parametrize("html", random_event_cases)
 def test_get_random_event_from_year_page(html):
-    results = []
-    for _ in range(100):
-        results.append(get_random_event_from_year_page(html))
+    results = [get_random_event_from_year_page(html) for _ in range(100)]
 
-    assert all([result == results[0] for result in results]) is False
-    assert all([result != "Brak danych." for result in results]) is True
+    assert all([r == results[0] for r in results]) is False
+    assert all([r != "Brak danych." for r in results]) is True

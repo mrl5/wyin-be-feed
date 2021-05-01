@@ -43,13 +43,6 @@ handlers = tuple(
     ]
 )
 
-fallback_cases = [
-    (
-        handler_factory("event", {"t": "9:12"}),
-        get_wiki_response("pl_wiki_year_912")["query"]["pages"]["13551"]["extract"],
-    )
-]
-
 
 @pytest.fixture(scope="function")
 def event_handler(monkeypatch):
@@ -93,10 +86,9 @@ async def test_event_exceptions(invalid_time_param):
 
 
 @pytest.mark.asyncio
-@pytest.mark.parametrize("handler, source", fallback_cases)
-async def test_event_fallback(handler, source, monkeypatch):
-    monkeypatch_history_event_handler(monkeypatch)
-    result = await handler.handle()
+async def test_event_fallback(event_handler_912, monkeypatch):
+    source = get_wiki_response("pl_wiki_year_912")["query"]["pages"]["13551"]["extract"]
+    result = await event_handler_912.handle()
     assert result.dict()["data"] is not None
     assert source.find(result.dict()["data"]) > 0
 

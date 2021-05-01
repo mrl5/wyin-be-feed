@@ -7,7 +7,6 @@ from asyncio import gather
 from time import strptime
 from typing import Callable
 
-from httpx import AsyncClient
 from pydantic import BaseModel, validator
 
 from feed.handlers.decorators import decode_request_params
@@ -23,7 +22,10 @@ from feed.utils.scrapers import (
     get_random_event_from_year_page,
     get_year_event_from_century_page,
 )
-from feed.utils.wikidata_api import get_wikipedia_titles_for_century_and_year
+from feed.utils.wikidata_api import (
+    CenturyAndYearTitles,
+    get_wikipedia_titles_for_century_and_year,
+)
 from feed.utils.wikipedia_api import get_wiki_page_content, query, query_year
 
 
@@ -41,18 +43,18 @@ class EventsParams(EventParams):
 
 
 class Event(IHttpRequestHandler):
-    _client: AsyncClient = get_async_client()
     _year: int
     _lang: str = "pl"
 
     @decode_request_params
     def __init__(self, params: dict):
         self._params = EventParams(**params)
+        self._client = get_async_client()
 
     async def handle(self) -> SingleHistoryEventModel:
         self._year = convert_time_to_year(self._params.t)
         async with self._client:
-            titles = await get_wikipedia_titles_for_century_and_year(
+            titles: CenturyAndYearTitles = await get_wikipedia_titles_for_century_and_year(
                 self._year, self._lang, self._client
             )
             century_resp, year_resp = await gather(
