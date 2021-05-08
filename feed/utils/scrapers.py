@@ -5,7 +5,7 @@
 
 import re
 from random import choice
-from typing import Optional
+from typing import Iterator, Optional
 
 from bs4 import BeautifulSoup
 from bs4.element import NavigableString
@@ -38,8 +38,17 @@ def get_year_event_from_century_page(year: int, century_page: str) -> Optional[s
 def get_random_event_from_year_page(year_page: str) -> str:
     soup = BeautifulSoup(year_page, features="html.parser")
     tags = soup.find_all(name="li")
-    leaf_tags = [tag for tag in tags if isinstance(next(tag.children), NavigableString)]
+    leaf_tags = [
+        tag for tag in tags if isinstance(safe_next(tag.children), NavigableString)
+    ]
 
     if len(leaf_tags) == 0:
         raise NoContentError("no content for given year")
     return choice(leaf_tags).get_text()
+
+
+def safe_next(iterator: Iterator[str]) -> Optional[str]:
+    try:
+        return next(iterator)
+    except StopIteration:
+        return None
