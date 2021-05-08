@@ -73,23 +73,40 @@ async def test_history_events(status_code, params, monkeypatch):
 
 
 @pytest.mark.asyncio
+async def test_midnight_response(monkeypatch):
+    monkeypatch_history_event_handler(monkeypatch)
+    monkeypatch_history_events_handler(monkeypatch)
+    responses = []
+    async with AsyncClient(app=app, base_url="http://test") as ac:
+        responses.append(await ac.get("/history/event", params={"t": "0:00"}))
+        responses.append(await ac.get("/history/events", params={"t": "0:00"}))
+    for r in responses:
+        assert r.status_code == 404
+
+
+@pytest.mark.asyncio
 @pytest.mark.parametrize("params", cors_params)
 async def test_cors_headers(params, monkeypatch):
     monkeypatch_history_event_handler(monkeypatch)
     monkeypatch_history_events_handler(monkeypatch)
     headers = {"origin": "http://test"}
+    responses = []
     async with AsyncClient(app=app, base_url="http://test") as ac:
-        r_event = await ac.get("/history/event", params=params, headers=headers)
-        r_events = await ac.get("/history/events", params=params, headers=headers)
-    assert r_event.headers["access-control-allow-origin"] in ALLOWED_ORIGINS
-    assert r_events.headers["access-control-allow-origin"] in ALLOWED_ORIGINS
+        responses.append(await ac.get("/history/event", params=params, headers=headers))
+        responses.append(
+            await ac.get("/history/events", params=params, headers=headers)
+        )
+    for r in responses:
+        assert r.headers["access-control-allow-origin"] in ALLOWED_ORIGINS
 
 
 @pytest.mark.asyncio
 async def test_http_timeout(monkeypatch):
     monkeypatch_history_event_handler(monkeypatch, force_timeout=True)
     monkeypatch_history_events_handler(monkeypatch, force_timeout=True)
+    responses = []
     async with AsyncClient(app=app, base_url="http://test") as ac:
-        response = await ac.get("/history/event", params={"t": "10:20"})
-        response = await ac.get("/history/events", params={"t": "10:20"})
-    assert response.status_code == 504
+        responses.append(await ac.get("/history/event", params={"t": "10:20"}))
+        responses.append(await ac.get("/history/events", params={"t": "10:20"}))
+    for r in responses:
+        assert r.status_code == 504

@@ -12,7 +12,7 @@ from httpx import TimeoutException
 from pydantic import ValidationError
 
 from feed.conf import ALLOWED_ORIGINS
-from feed.errors import FutureYearError
+from feed.errors import BeforeCommonEraError, FutureYearError
 from feed.routers import health, history
 
 app = FastAPI()
@@ -40,6 +40,7 @@ async def validation_exception_handler(request, exc):
     )
 
 
+@app.exception_handler(BeforeCommonEraError)
 @app.exception_handler(FutureYearError)
 async def future_year_exception_handler(request, exc):
     return JSONResponse(status_code=404, content={"body": str(exc)})

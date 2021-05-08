@@ -12,8 +12,7 @@ from feed.errors import BeforeCommonEraError, FutureYearError
 
 def convert_time_to_year(time: str) -> int:
     year = int(time.replace(":", ""))
-    if year > datetime.now().year:
-        raise FutureYearError(f"this year is from future: {year}")
+    throw_on_invalid_year(year)
     return year
 
 
@@ -28,3 +27,5 @@ def throw_on_invalid_year(year: int) -> None:
     assert year >= 0
     if year == 0:
         raise BeforeCommonEraError(f"this year is from before common era: {year}")
+    if year > datetime.now().year:
+        raise FutureYearError(f"this year is from future: {year}")

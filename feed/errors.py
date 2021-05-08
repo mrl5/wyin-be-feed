@@ -4,16 +4,21 @@
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
 
-class FutureYearError(Exception):
+class WyinFeedBaseError(Exception):
     def __init__(self, msg):
         self.msg = msg
 
 
-class BeforeCommonEraError(Exception):
+class FutureYearError(WyinFeedBaseError):
     def __init__(self, msg):
         self.msg = msg
 
 
-class UnsupportedLanguageError(Exception):
+class BeforeCommonEraError(WyinFeedBaseError):
+    def __init__(self, msg):
+        self.msg = msg
+
+
+class UnsupportedLanguageError(WyinFeedBaseError):
     def __init__(self, msg):
         self.msg = msg
