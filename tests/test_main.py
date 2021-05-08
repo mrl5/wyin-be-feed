@@ -85,6 +85,15 @@ async def test_midnight_response(monkeypatch):
 
 
 @pytest.mark.asyncio
+async def test_nocontent_response(monkeypatch):
+    monkeypatch_history_event_handler(monkeypatch)
+    async with AsyncClient(app=app, base_url="http://test") as ac:
+        response = await ac.get("/history/event", params={"t": "0:57"})
+    print(response.json())
+    assert response.status_code == 404
+
+
+@pytest.mark.asyncio
 @pytest.mark.parametrize("params", cors_params)
 async def test_cors_headers(params, monkeypatch):
     monkeypatch_history_event_handler(monkeypatch)

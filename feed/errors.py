@@ -19,6 +19,11 @@ class BeforeCommonEraError(WyinFeedBaseError):
         self.msg = msg
 
 
+class NoContentError(WyinFeedBaseError):
+    def __init__(self, msg):
+        self.msg = msg
+
+
 class UnsupportedLanguageError(WyinFeedBaseError):
     def __init__(self, msg):
         self.msg = msg

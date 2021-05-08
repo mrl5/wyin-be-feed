@@ -24,9 +24,15 @@ async def wiki_api(
         return await wikidata_api(lang, action, search, ids)
 
     if lang == "pl" and titles is not None and titles.endswith("wiek"):
+        if titles == "I wiek":
+            return get_wiki_response(f"{lang}_wiki_century_1")
+
         return get_wiki_response(f"{lang}_wiki_century")
 
     if lang == "pl" and titles is not None and titles == "912":
         return get_wiki_response(f"{lang}_wiki_year_912")
+
+    if lang == "pl" and titles is not None and titles == "57":
+        return get_wiki_response(f"{lang}_wiki_year_57")
 
     return get_wiki_response(f"{lang}_wiki_year")
