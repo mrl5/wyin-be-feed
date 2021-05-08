@@ -53,6 +53,15 @@ async def wiki_api(language: str, action: str, search: str = None, ids: str = No
             ]
             return {"entities": {**Q8052, **Q30463}}
 
+        if ids == "Q8052|Q23411":
+            Q8052 = get_wiki_response(f"{language}_wikidata_get_entities_century")[
+                "entities"
+            ]
+            Q23411 = get_wiki_response(f"{language}_wikidata_get_entities_year")[
+                "entities"
+            ]
+            return {"entities": {**Q8052, **Q23411}}
+
         if ids == "Q8052|Q23837":
             Q8052 = get_wiki_response(f"{language}_wikidata_get_entities_century")[
                 "entities"

@@ -79,9 +79,10 @@ async def test_cors_headers(params, monkeypatch):
     monkeypatch_history_events_handler(monkeypatch)
     headers = {"origin": "http://test"}
     async with AsyncClient(app=app, base_url="http://test") as ac:
-        response = await ac.get("/history/event", params=params, headers=headers)
-        response = await ac.get("/history/events", params=params, headers=headers)
-    assert response.headers["access-control-allow-origin"] in ALLOWED_ORIGINS
+        r_event = await ac.get("/history/event", params=params, headers=headers)
+        r_events = await ac.get("/history/events", params=params, headers=headers)
+    assert r_event.headers["access-control-allow-origin"] in ALLOWED_ORIGINS
+    assert r_events.headers["access-control-allow-origin"] in ALLOWED_ORIGINS
 
 
 @pytest.mark.asyncio

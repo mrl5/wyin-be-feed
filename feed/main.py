@@ -8,14 +8,14 @@ from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.openapi.utils import get_openapi
 from fastapi.responses import JSONResponse
+from httpx import TimeoutException
+from pydantic import ValidationError
 
 from feed.conf import ALLOWED_ORIGINS
-from feed.middleware import catch_exceptions_middleware, replace_false_422
+from feed.errors import FutureYearError
 from feed.routers import health, history
 
 app = FastAPI()
-
-app.middleware("http")(catch_exceptions_middleware)
 
 app.add_middleware(
     CORSMiddleware,
@@ -24,14 +24,49 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-
 app.include_router(health.router)
 app.include_router(history.router)
 
 
 @app.exception_handler(RequestValidationError)
-async def validation_exception_handler(request, exc):
+async def request_validation_exception_handler(request, exc):
     return JSONResponse(status_code=400, content={"body": "Bad Request"})
+
+
+@app.exception_handler(ValidationError)
+async def validation_exception_handler(request, exc):
+    return JSONResponse(
+        status_code=400, content={"body": next(iter(exc.errors()))["msg"]}
+    )
+
+
+@app.exception_handler(FutureYearError)
+async def future_year_exception_handler(request, exc):
+    return JSONResponse(status_code=404, content={"body": str(exc)})
+
+
+@app.exception_handler(TimeoutException)
+async def timeout_exception_handler(request, exc):
+    return JSONResponse(status_code=504, content={"body": str(exc)})
+
+
+@app.exception_handler(Exception)
+async def generic_exception_handler(request, exc):
+    return JSONResponse(status_code=500, content={"body": "Internal Server Error"})
+
+
+def replace_false_422(openapi_schema, true_status_code: int = 400):
+    # https://github.com/tiangolo/fastapi/issues/1376
+    for method in openapi_schema["paths"]:
+        try:
+            false_code = openapi_schema["paths"][method]["get"]["responses"]["422"]
+            openapi_schema["paths"][method]["get"]["responses"][
+                true_status_code
+            ] = false_code
+            del openapi_schema["paths"][method]["get"]["responses"]["422"]
+        except KeyError:
+            pass
+    return openapi_schema
 
 
 def custom_openapi():
