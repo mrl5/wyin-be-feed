@@ -3,6 +3,7 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
+import re
 import sys
 
 if sys.version_info < (3, 8):
@@ -108,17 +109,22 @@ def get_century_title_id(entities: dict) -> str:
 
 
 def get_year_title_id(entities: dict) -> str:
-    return get_title_id(entities, description="year")
+    pattern = re.compile(r"^year[.,]?$|^year[ .,].+$|.+[ ]year[ .,].*|[ ]year$")
+    return get_title_id(entities, description=pattern)
 
 
-def get_title_id(entities: dict, description: str = None, label: str = None) -> str:
+def get_title_id(
+    entities: dict, description: re.Pattern = None, label: str = None
+) -> str:
     if (description is None and label is None) or (
         description is not None and label is not None
     ):
         raise ValueError("either description or label must be specified")
     if description is not None:
         item = next(
-            item for item in entities["search"] if item["description"] == description
+            item
+            for item in entities["search"]
+            if description.search(item["description"])
         )
     if label is not None:
         item = next(
