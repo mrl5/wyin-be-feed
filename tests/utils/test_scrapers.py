@@ -36,6 +36,7 @@ year_events = [
 random_event_cases = (
     get_wiki_page_content(get_wiki_response("pl_wiki_year")),
     get_wiki_page_content(get_wiki_response("pl_wiki_year_912")),
+    '<h2><span id="Wydarzenia">Wydarzenia</span></h2>\n<ul><li><b>Europa</b>\n<ul><li>założono zakon benedyktynów</li>\n<li>Anastazjusz zbudował fortyfikacje przeciw Słowianom</li></ul></li></ul><h2><span id="Urodzili_si.C4.99"></span><span id="Urodzili_się">Urodzili się</span></h2>\n<ul><li><span><i>Brak danych.</i></span></li></ul><h2><span id="Zmarli">Zmarli</span></h2>\n<ul><li class="mw-empty-elt"></ul><p><br></p>',
 )
 
 
@@ -53,6 +54,6 @@ def test_get_random_event_from_year_page(html):
 
 
 def test_get_random_event_from_year_page_exceptions():
-    html = get_wiki_response("pl_wiki_year_57")["query"]["pages"]["12733"]["extract"]
+    html = get_wiki_page_content(get_wiki_response("pl_wiki_year_57"))
     with pytest.raises(NoContentError):
         get_random_event_from_year_page(html)
