@@ -21,6 +21,10 @@ async def wiki_api(language: str, action: str, search: str = None, ids: str = No
                 return get_wiki_response(
                     f"{language}_wikidata_search_entities_century_19"
                 )
+            if search == "I wiek":
+                return get_wiki_response(
+                    f"{language}_wikidata_search_entities_century_1"
+                )
             return get_wiki_response(f"{language}_wikidata_search_entities_century")
 
         if language == "pl" and search is not None and search == "908":
@@ -28,6 +32,9 @@ async def wiki_api(language: str, action: str, search: str = None, ids: str = No
 
         if language == "pl" and search is not None and search == "912":
             return get_wiki_response(f"{language}_wikidata_search_entities_year_912")
+
+        if language == "pl" and search is not None and search == "57":
+            return get_wiki_response(f"{language}_wikidata_search_entities_year_57")
 
         return get_wiki_response(f"{language}_wikidata_search_entities_year")
 
@@ -41,8 +48,14 @@ async def wiki_api(language: str, action: str, search: str = None, ids: str = No
         if ids == "Q186674":
             return get_wiki_response(f"{language}_wikidata_get_entities_century_19bc")
 
+        if ids == "Q8106":
+            return get_wiki_response(f"{language}_wikidata_get_entities_century_1")
+
         if ids == "Q23837":
             return get_wiki_response(f"{language}_wikidata_get_entities_year_912")
+
+        if ids == "Q30969":
+            return get_wiki_response(f"{language}_wikidata_get_entities_year_57")
 
         if ids == "Q8052|Q30463":
             Q8052 = get_wiki_response(f"{language}_wikidata_get_entities_century")[
@@ -70,6 +83,15 @@ async def wiki_api(language: str, action: str, search: str = None, ids: str = No
                 "entities"
             ]
             return {"entities": {**Q8052, **Q23837}}
+
+        if ids == "Q8106|Q30969":
+            Q8106 = get_wiki_response(f"{language}_wikidata_get_entities_century_1")[
+                "entities"
+            ]
+            Q30969 = get_wiki_response(f"{language}_wikidata_get_entities_year_57")[
+                "entities"
+            ]
+            return {"entities": {**Q8106, **Q30969}}
 
         return get_wiki_response(f"{language}_wikidata_get_entities_year")
 

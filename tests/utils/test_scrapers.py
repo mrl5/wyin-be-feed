@@ -5,6 +5,7 @@
 
 import pytest
 
+from feed.errors import NoContentError
 from feed.utils.scrapers import (
     get_random_event_from_year_page,
     get_year_event_from_century_page,
@@ -49,3 +50,9 @@ def test_get_random_event_from_year_page(html):
 
     assert all([r == results[0] for r in results]) is False
     assert all([r != "Brak danych." for r in results]) is True
+
+
+def test_get_random_event_from_year_page_exceptions():
+    html = get_wiki_response("pl_wiki_year_57")["query"]["pages"]["12733"]["extract"]
+    with pytest.raises(NoContentError):
+        get_random_event_from_year_page(html)

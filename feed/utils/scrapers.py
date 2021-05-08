@@ -10,6 +10,8 @@ from typing import Optional
 from bs4 import BeautifulSoup
 from bs4.element import NavigableString
 
+from feed.errors import NoContentError
+
 
 def get_year_event_from_century_page(year: int, century_page: str) -> Optional[str]:
     soup = BeautifulSoup(century_page, features="html.parser")
@@ -37,4 +39,7 @@ def get_random_event_from_year_page(year_page: str) -> str:
     soup = BeautifulSoup(year_page, features="html.parser")
     tags = soup.find_all(name="li")
     leaf_tags = [tag for tag in tags if isinstance(next(tag.children), NavigableString)]
+
+    if len(leaf_tags) == 0:
+        raise NoContentError("no content for given year")
     return choice(leaf_tags).get_text()
