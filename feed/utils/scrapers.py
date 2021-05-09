@@ -33,12 +33,14 @@ def get_year_event_from_century_page(year: int, century_page: str) -> Optional[s
     tags = [
         soup.find(name="li", string=year_first_pattern),
         soup.find(name="li", string=year_later_pattern),
+        soup.find(name="li"),  # workaround due to strange bs4 bug
     ]
 
     for tag in tags:
         if tag is not None:
             text = tag.get_text()
-            return None if text.endswith(" -") else text
+            condition_for_none = text.endswith(" -") or str(year) not in text
+            return None if condition_for_none else text
     return None
 
 
