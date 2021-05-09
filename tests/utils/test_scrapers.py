@@ -15,6 +15,7 @@ from tests.mocks.mock_factory import get_wiki_response
 
 mock_century_html = get_wiki_page_content(get_wiki_response("pl_wiki_century"))
 mock_ambiguous_html = "<li>bitwa pod Stalingradem (1942–1943)</li><li>Lech Wałęsa (ur. 1943) – prezydent RP</li>"
+mock_regex_hell_html = "<li>1206 – Temudżyn (Czyngis-chan) zjednoczył Mongołów i rozpoczął podboje (pd. Syberia w 1207, pn. Chiny w 1211, wsch. Iran w 1218)</li>\n<li>1207 – doszło do wielkiego pożaru Magdeburga w wyniku którego m.in. spłonęła doszczętnie miejscowa katedra (20 kwietnia)</li><li>1211 – Alfons II został królem Portugalii (26 marca)</li><li>1218 – św. Piotr Nolasco założył w Barcelonie Zakon Najświętszej Maryi Panny Miłosierdzia dla Odkupienia Niewolników (10 sierpnia)</li>"
 year_events = [
     (908, "908 - w Bagdadzie odnotowano opady śniegu", mock_century_html),
     (
@@ -29,6 +30,26 @@ year_events = [
     ),
     (911, None, mock_century_html),
     (912, None, mock_century_html),
+    (
+        1206,
+        "1206 – Temudżyn (Czyngis-chan) zjednoczył Mongołów i rozpoczął podboje (pd. Syberia w 1207, pn. Chiny w 1211, wsch. Iran w 1218)",
+        mock_regex_hell_html,
+    ),
+    (
+        1207,
+        "1207 – doszło do wielkiego pożaru Magdeburga w wyniku którego m.in. spłonęła doszczętnie miejscowa katedra (20 kwietnia)",
+        mock_regex_hell_html,
+    ),
+    (
+        1211,
+        "1211 – Alfons II został królem Portugalii (26 marca)",
+        mock_regex_hell_html,
+    ),
+    (
+        1218,
+        "1218 – św. Piotr Nolasco założył w Barcelonie Zakon Najświętszej Maryi Panny Miłosierdzia dla Odkupienia Niewolników (10 sierpnia)",
+        mock_regex_hell_html,
+    ),
     (1942, "bitwa pod Stalingradem (1942–1943)", mock_ambiguous_html),
     (1943, "Lech Wałęsa (ur. 1943) – prezydent RP", mock_ambiguous_html),
 ]

@@ -15,23 +15,30 @@ from feed.errors import NoContentError
 
 def get_year_event_from_century_page(year: int, century_page: str) -> Optional[str]:
     soup = BeautifulSoup(century_page, features="html.parser")
-    pattern = re.compile(
+    year_first_pattern = re.compile(
         rf"""        # https://www.python.org/dev/peps/pep-0498/#raw-f-strings
-        [^/\-\–]     # negated characters (see: https://www.regular-expressions.info/charclass.html)
-        {str(year)}  # injected year variable as f-string
-
-        |            # https://www.regular-expressions.info/alternation.html
-
         ^            # start of string (see: https://www.regular-expressions.info/anchors.html)
         {str(year)}  # injected year variable as f-string
     """,
         re.VERBOSE,  # https://docs.python.org/3/library/re.html#re.VERBOSE
     )
-    tag = soup.find(name="li", string=pattern)
+    year_later_pattern = re.compile(
+        rf"""
+        [^/\-\–]     # negated characters (see: https://www.regular-expressions.info/charclass.html)
+        {str(year)}
+    """,
+        re.VERBOSE,
+    )
 
-    if tag is not None:
-        text = tag.get_text()
-        return None if text.endswith(" -") else text
+    tags = [
+        soup.find(name="li", string=year_first_pattern),
+        soup.find(name="li", string=year_later_pattern),
+    ]
+
+    for tag in tags:
+        if tag is not None:
+            text = tag.get_text()
+            return None if text.endswith(" -") else text
     return None
 
 
