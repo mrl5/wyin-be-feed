@@ -156,3 +156,17 @@ deploy_ci:
     - gcloud auth activate-service-account --key-file gcloud-service-key.json
     - gcloud config set project $GCP_PROJECT_ID_CI
     - gcloud builds submit . --config=cloudbuild.yaml
+
+deploy_prd:
+  stage: deploy
+  needs: [gitlab_release]
+  image: google/cloud-sdk:latest
+  rules:
+    - if: '$CI_COMMIT_TAG =~ /^v[0-9]+\.[0-9]+\.[0-9]+(?:-[0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*)?(?:\+[0-9A-Za-z-]+)?$/'
+  services:
+    - docker:dind
+  script:
+    - echo $GCP_SERVICE_KEY_PRD | base64 -d > gcloud-service-key.json
+    - gcloud auth activate-service-account --key-file gcloud-service-key.json
+    - gcloud config set project $GCP_PROJECT_ID_PRD
+    - gcloud builds submit . --config=cloudbuild.yaml
