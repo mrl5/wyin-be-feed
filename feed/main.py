@@ -4,12 +4,11 @@
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
 from fastapi import FastAPI
-from fastapi.exceptions import RequestValidationError
+from fastapi.exceptions import RequestValidationError, ValidationError
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.openapi.utils import get_openapi
 from fastapi.responses import JSONResponse
 from httpx import TimeoutException
-from pydantic import ValidationError
 
 from feed.conf import ALLOWED_ORIGINS
 from feed.errors import BeforeCommonEraError, FutureYearError, NoContentError
@@ -50,11 +49,6 @@ async def future_year_exception_handler(request, exc):
 @app.exception_handler(TimeoutException)
 async def timeout_exception_handler(request, exc):
     return JSONResponse(status_code=504, content={"body": str(exc)})
-
-
-@app.exception_handler(Exception)
-async def generic_exception_handler(request, exc):
-    return JSONResponse(status_code=500, content={"body": "Internal Server Error"})
 
 
 def replace_false_422(openapi_schema, true_status_code: int = 400):
