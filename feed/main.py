@@ -39,13 +39,6 @@ async def validation_exception_handler(request, exc):
     )
 
 
-@app.exception_handler(BeforeCommonEraError)
-@app.exception_handler(FutureYearError)
-@app.exception_handler(NoContentError)
-async def future_year_exception_handler(request, exc):
-    return JSONResponse(status_code=404, content={"body": str(exc)})
-
-
 @app.exception_handler(TimeoutException)
 async def timeout_exception_handler(request, exc):
     return JSONResponse(status_code=504, content={"body": str(exc)})

@@ -7,6 +7,13 @@ from typing import Optional
 
 from pydantic import BaseModel
 
+from feed.errors import NotFoundCodeEnum
+
 
 class SingleHistoryEventModel(BaseModel):
     data: Optional[str]
+
+
+class NotFoundModel(BaseModel):
+    body: str
+    code: NotFoundCodeEnum
