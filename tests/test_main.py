@@ -3,15 +3,17 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
+from asyncio import wait
+
 import pytest
 from httpx import AsyncClient
 
 from feed.conf import ALLOWED_ORIGINS
 from feed.main import app
-from tests.mocks.mock_factory import get_event_response, get_events_response
+from tests.mocks.mock_factory import get_event_response
 from tests.mocks.monkeypatches import (
     monkeypatch_history_event_handler,
-    monkeypatch_history_events_handler,
+    monkeypatch_history_event_random_handler,
 )
 
 # https://opensource.zalando.com/restful-api-guidelines/#227
@@ -35,7 +37,6 @@ history_event_cases = [
     (400, {"t": "-8:23"}),
     (404, {"t": "23:59"}),
 ]
-history_events_cases = history_event_cases
 
 cors_params = ({"t": "10:20"}, {"t": "23:59"})
 
@@ -61,27 +62,22 @@ async def test_history_event(status_code, params, monkeypatch):
 
 
 @pytest.mark.asyncio
-@pytest.mark.parametrize("status_code, params", history_events_cases)
-async def test_history_events(status_code, params, monkeypatch):
-    monkeypatch_history_events_handler(monkeypatch)
+async def test_history_event_random(monkeypatch):
+    monkeypatch_history_event_random_handler(monkeypatch)
     async with AsyncClient(app=app, base_url="http://test") as ac:
-        response = await ac.get("/history/events", params=params)
+        responses, _ = await wait([ac.get("/history/event/random") for _ in range(10)])
 
-    assert response.status_code == status_code
-    if status_code == 200:
-        assert response.json() == get_events_response("pl_events")
+    responses = [r.result() for r in responses]
+    assert all(r.status_code == 200 for r in responses) is True
+    assert all(r.json() == responses[0].json() for r in responses) is False
 
 
 @pytest.mark.asyncio
 async def test_midnight_response(monkeypatch):
     monkeypatch_history_event_handler(monkeypatch)
-    monkeypatch_history_events_handler(monkeypatch)
-    responses = []
     async with AsyncClient(app=app, base_url="http://test") as ac:
-        responses.append(await ac.get("/history/event", params={"t": "0:00"}))
-        responses.append(await ac.get("/history/events", params={"t": "0:00"}))
-    for r in responses:
-        assert r.status_code == 404
+        response = await ac.get("/history/event", params={"t": "0:00"})
+    assert response.status_code == 404
 
 
 @pytest.mark.asyncio
@@ -97,14 +93,11 @@ async def test_nocontent_response(monkeypatch):
 @pytest.mark.parametrize("params", cors_params)
 async def test_cors_headers(params, monkeypatch):
     monkeypatch_history_event_handler(monkeypatch)
-    monkeypatch_history_events_handler(monkeypatch)
     headers = {"origin": "http://test"}
     responses = []
     async with AsyncClient(app=app, base_url="http://test") as ac:
         responses.append(await ac.get("/history/event", params=params, headers=headers))
-        responses.append(
-            await ac.get("/history/events", params=params, headers=headers)
-        )
+        responses.append(await ac.get("/history/event/random", headers=headers))
     for r in responses:
         assert r.headers["access-control-allow-origin"] in ALLOWED_ORIGINS
 
@@ -112,10 +105,9 @@ async def test_cors_headers(params, monkeypatch):
 @pytest.mark.asyncio
 async def test_http_timeout(monkeypatch):
     monkeypatch_history_event_handler(monkeypatch, force_timeout=True)
-    monkeypatch_history_events_handler(monkeypatch, force_timeout=True)
     responses = []
     async with AsyncClient(app=app, base_url="http://test") as ac:
         responses.append(await ac.get("/history/event", params={"t": "10:20"}))
-        responses.append(await ac.get("/history/events", params={"t": "10:20"}))
+        responses.append(await ac.get("/history/event/random"))
     for r in responses:
         assert r.status_code == 504

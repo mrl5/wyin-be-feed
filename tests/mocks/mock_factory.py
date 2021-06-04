@@ -69,11 +69,6 @@ class EventReponseMocks(str, Enum):
     pl_event = "pl_feed_event_sample_response.json"
 
 
-@unique
-class EventsReponseMocks(str, Enum):
-    pl_events = "pl_feed_events_sample_response.json"
-
-
 def _json_to_dict(path: Path) -> dict:
     with open(path) as f:
         a_dict = json.load(f)
@@ -87,9 +82,4 @@ def get_wiki_response(key: str) -> dict:
 
 def get_event_response(key: str) -> dict:
     path = CWD / EventReponseMocks[key].value
-    return _json_to_dict(path)
-
-
-def get_events_response(key: str) -> dict:
-    path = CWD / EventsReponseMocks[key].value
     return _json_to_dict(path)
