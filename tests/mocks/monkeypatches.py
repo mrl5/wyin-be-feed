@@ -18,7 +18,7 @@ def monkeypatch_history_event_handler(monkeypatch, force_timeout=False):
 
 def monkeypatch_history_event_random_handler(monkeypatch, force_timeout=False):
     def mockreturn(self):
-        mocked_years = [908, 912, 1020]
+        mocked_years = [912, 1020]
         return choice(mocked_years)
 
     _monkeypatch_async_client(monkeypatch, force_timeout)

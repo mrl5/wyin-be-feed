@@ -4,15 +4,21 @@
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
 from fastapi import APIRouter, Query
+from fastapi.responses import JSONResponse
 
+from feed.errors import NotFoundError
 from feed.handlers.history import Event, EventRandom
 from feed.interfaces.handlers import IHttpRequestHandler
-from feed.models.history import SingleHistoryEventModel
+from feed.models.history import NotFoundModel, SingleHistoryEventModel
 
 router = APIRouter(prefix="/history", tags=["history"])
 
 
-@router.get("/event", response_model=SingleHistoryEventModel)
+@router.get(
+    "/event",
+    response_model=SingleHistoryEventModel,
+    responses={404: {"model": NotFoundModel}},
+)
 async def get_event(
     t: str = Query(
         ...,
@@ -22,10 +28,22 @@ async def get_event(
     )
 ):
     h: IHttpRequestHandler = Event(locals())
-    return await h.handle()
+    try:
+        return await h.handle()
+    except NotFoundError as nfe:
+        content = NotFoundModel(body=str(nfe), code=nfe.code).json()
+        return JSONResponse(status_code=404, content=content)
 
 
-@router.get("/event/random", response_model=SingleHistoryEventModel)
+@router.get(
+    "/event/random",
+    response_model=SingleHistoryEventModel,
+    responses={404: {"model": NotFoundModel}},
+)
 async def get_event_random():
     h: IHttpRequestHandler = EventRandom()
-    return await h.handle()
+    try:
+        return await h.handle()
+    except NotFoundError as nfe:
+        content = NotFoundModel(body=str(nfe), code=nfe.code).json()
+        return JSONResponse(status_code=404, content=content)
