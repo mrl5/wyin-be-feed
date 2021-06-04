@@ -3,13 +3,18 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
+from asyncio import wait
+
 import pytest
 from httpx import AsyncClient
 
 from feed.conf import ALLOWED_ORIGINS
 from feed.main import app
 from tests.mocks.mock_factory import get_event_response
-from tests.mocks.monkeypatches import monkeypatch_history_event_handler
+from tests.mocks.monkeypatches import (
+    monkeypatch_history_event_handler,
+    monkeypatch_history_event_random_handler,
+)
 
 # https://opensource.zalando.com/restful-api-guidelines/#227
 NO_CACHE_HEADERS = "no-cache, no-store, must-revalidate, max-age=0"
@@ -57,6 +62,17 @@ async def test_history_event(status_code, params, monkeypatch):
 
 
 @pytest.mark.asyncio
+async def test_history_event_random(monkeypatch):
+    monkeypatch_history_event_random_handler(monkeypatch)
+    async with AsyncClient(app=app, base_url="http://test") as ac:
+        responses, _ = await wait([ac.get("/history/event/random") for _ in range(10)])
+
+    responses = [r.result() for r in responses]
+    assert all(r.status_code == 200 for r in responses) is True
+    assert all(r.json() == responses[0].json() for r in responses) is False
+
+
+@pytest.mark.asyncio
 async def test_midnight_response(monkeypatch):
     monkeypatch_history_event_handler(monkeypatch)
     async with AsyncClient(app=app, base_url="http://test") as ac:
@@ -81,6 +97,7 @@ async def test_cors_headers(params, monkeypatch):
     responses = []
     async with AsyncClient(app=app, base_url="http://test") as ac:
         responses.append(await ac.get("/history/event", params=params, headers=headers))
+        responses.append(await ac.get("/history/event/random", headers=headers))
     for r in responses:
         assert r.headers["access-control-allow-origin"] in ALLOWED_ORIGINS
 
@@ -91,5 +108,6 @@ async def test_http_timeout(monkeypatch):
     responses = []
     async with AsyncClient(app=app, base_url="http://test") as ac:
         responses.append(await ac.get("/history/event", params={"t": "10:20"}))
+        responses.append(await ac.get("/history/event/random"))
     for r in responses:
         assert r.status_code == 504

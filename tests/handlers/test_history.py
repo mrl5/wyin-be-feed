@@ -8,7 +8,7 @@ from enum import Enum, unique
 import pytest
 from pydantic import ValidationError
 
-from feed.handlers.history import Event
+from feed.handlers.history import Event, EventRandom
 from feed.interfaces.handlers import IHttpRequestHandler
 from tests.mocks.mock_factory import get_event_response, get_wiki_response
 from tests.mocks.monkeypatches import monkeypatch_history_event_handler
@@ -17,11 +17,12 @@ from tests.mocks.monkeypatches import monkeypatch_history_event_handler
 @unique
 class HandlersEnum(Enum):
     event = Event
+    event_random = EventRandom
 
 
 def handler_factory(key, params) -> IHttpRequestHandler:
     a_class = HandlersEnum[key].value
-    a_object = a_class(params)
+    a_object = a_class() if key == "event_random" else a_class(params)
     return a_object
 
 

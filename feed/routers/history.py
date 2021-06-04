@@ -5,7 +5,7 @@
 
 from fastapi import APIRouter, Query
 
-from feed.handlers.history import Event
+from feed.handlers.history import Event, EventRandom
 from feed.interfaces.handlers import IHttpRequestHandler
 from feed.models.history import SingleHistoryEventModel
 
@@ -22,4 +22,10 @@ async def get_event(
     )
 ):
     h: IHttpRequestHandler = Event(locals())
+    return await h.handle()
+
+
+@router.get("/event/random", response_model=SingleHistoryEventModel)
+async def get_event_random():
+    h: IHttpRequestHandler = EventRandom()
     return await h.handle()
