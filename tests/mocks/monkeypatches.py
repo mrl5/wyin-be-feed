@@ -6,10 +6,7 @@
 from httpx import AsyncClient
 
 from feed.handlers import history
-from feed.handlers.history import Events
-from feed.utils.wikipedia_api import query_year
 from tests.mocks.fake_wikipedia_api import fake_app
-from tests.mocks.mock_factory import get_wiki_response
 
 
 def monkeypatch_history_event_handler(monkeypatch, force_timeout=False):
@@ -19,17 +16,3 @@ def monkeypatch_history_event_handler(monkeypatch, force_timeout=False):
         return AsyncClient(app=app, timeout=timeout)
 
     monkeypatch.setattr(history, "get_async_client", mockreturn)
-
-
-def monkeypatch_history_events_handler(monkeypatch, force_timeout=False):
-    # todo improve like above
-    async def mockreturn(self):
-        self._time_to_year_converter(self._params.t)
-        if force_timeout:
-            lang = "pl"
-            client = AsyncClient(app=None, timeout=0.0)
-            async with client:
-                return await query_year("1000", lang, client)
-        return get_wiki_response("pl_wiki_year")
-
-    monkeypatch.setattr(Events, "_get_wiki_response", mockreturn)

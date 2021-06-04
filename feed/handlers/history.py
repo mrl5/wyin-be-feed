@@ -5,17 +5,12 @@
 
 from asyncio import gather
 from time import strptime
-from typing import Callable
 
 from pydantic import BaseModel, validator
 
 from feed.handlers.decorators import decode_request_params
 from feed.interfaces.handlers import IHttpRequestHandler
-from feed.models.history import (
-    SingleHistoryEventModel,
-    WikiTextExtractsEnum,
-    WikiUnprocessedModel,
-)
+from feed.models.history import SingleHistoryEventModel
 from feed.utils.converters import convert_time_to_year
 from feed.utils.http_factory import get_async_client
 from feed.utils.scrapers import (
@@ -26,7 +21,7 @@ from feed.utils.wikidata_api import (
     CenturyAndYearTitles,
     get_wikipedia_titles_for_century_and_year,
 )
-from feed.utils.wikipedia_api import get_wiki_page_content, query, query_year
+from feed.utils.wikipedia_api import get_wiki_page_content, query
 
 
 class EventParams(BaseModel):
@@ -36,10 +31,6 @@ class EventParams(BaseModel):
     def time_in_24_hour_clock_format(cls, v):
         strptime(v, "%H:%M")
         return v
-
-
-class EventsParams(EventParams):
-    ...
 
 
 class Event(IHttpRequestHandler):
@@ -78,24 +69,3 @@ class Event(IHttpRequestHandler):
         html = get_wiki_page_content(year_resp)
         data = get_random_event_from_year_page(html)
         return data
-
-
-class Events(IHttpRequestHandler):
-    @decode_request_params
-    def __init__(self, params: dict):
-        self._params = EventsParams(**params)
-        self._lang = "pl"
-        self._time_to_year_converter: Callable[[str], int] = convert_time_to_year
-        self._data_extractor: Callable[[dict], str] = get_wiki_page_content
-
-    async def handle(self) -> WikiUnprocessedModel:
-        response = await self._get_wiki_response()
-        data = self._data_extractor(response).replace("\n", "")
-        return WikiUnprocessedModel(type=self._get_type(), data=data)
-
-    def _get_type(self) -> str:
-        return str(WikiTextExtractsEnum.wiki_limited_html.value)
-
-    async def _get_wiki_response(self) -> dict:
-        year = self._time_to_year_converter(self._params.t)
-        return await query_year(year, self._lang)

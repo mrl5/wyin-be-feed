@@ -5,9 +5,9 @@
 
 from fastapi import APIRouter, Query
 
-from feed.handlers.history import Event, Events
+from feed.handlers.history import Event
 from feed.interfaces.handlers import IHttpRequestHandler
-from feed.models.history import SingleHistoryEventModel, WikiUnprocessedModel
+from feed.models.history import SingleHistoryEventModel
 
 router = APIRouter(prefix="/history", tags=["history"])
 
@@ -22,17 +22,4 @@ async def get_event(
     )
 ):
     h: IHttpRequestHandler = Event(locals())
-    return await h.handle()
-
-
-@router.get("/events", response_model=WikiUnprocessedModel)
-async def get_events(
-    t: str = Query(
-        ...,
-        regex="^[0-9]{1,2}(:|%3A)[0-9]{2}$",
-        title="time",
-        description="24-hour clock time in %H:%M format",
-    )
-):
-    h: IHttpRequestHandler = Events(locals())
     return await h.handle()
