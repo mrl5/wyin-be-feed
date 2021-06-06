@@ -9,6 +9,7 @@ from feed.errors import NotFoundCodeEnum
 
 
 class SingleHistoryEventModel(BaseModel):
+    year: int
     data: str
     source: str
 
