@@ -7,6 +7,7 @@ from asyncio import gather
 from datetime import datetime
 from random import randrange
 from time import strptime
+from urllib.parse import quote
 
 from pydantic import BaseModel, validator
 
@@ -43,22 +44,30 @@ class _Event(IHttpRequestHandler):
                 self._get_wiki_response(titles["year_title"]),
             )
 
-        data = self._get_historical_event(century_resp, year_resp)
-        return SingleHistoryEventModel(data=data)
+        event = self._get_historical_event(century_resp, year_resp, titles)
+        return SingleHistoryEventModel(data=event["data"], source=event["source"])
 
     async def _get_wiki_response(self, title: str) -> dict:
         response = await query(title, self._lang, self._client)
         return response.json()
 
-    def _get_historical_event(self, century_resp: dict, year_resp: dict) -> str:
+    def _get_historical_event(
+        self, century_resp: dict, year_resp: dict, titles: CenturyAndYearTitles
+    ) -> dict:
         html = get_wiki_page_content(century_resp)
         data = get_year_event_from_century_page(self._year, html)
         if data is not None:
-            return data
+            source = self._get_source(titles["century_title"])
+            return {"data": data, "source": source}
 
         html = get_wiki_page_content(year_resp)
         data = get_random_event_from_year_page(html)
-        return data
+        source = self._get_source(titles["year_title"])
+        return {"data": data, "source": source}
+
+    def _get_source(self, title: str) -> str:
+        encoded_title = quote(title)
+        return f"https://{self._lang}.wikipedia.org/wiki/{encoded_title}"
 
 
 class EventParams(BaseModel):
