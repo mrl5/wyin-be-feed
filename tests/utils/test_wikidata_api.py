@@ -53,7 +53,7 @@ century_exceptions = [
     ("A", "pl", InvalidRomanNumeralError),
     ("x", "pl", InvalidRomanNumeralError),
     ("X1", "pl", InvalidRomanNumeralError),
-    ("X", "en", UnsupportedLanguageError),
+    ("X", "foobar", UnsupportedLanguageError),
 ]
 
 century_year_cases = [("pl", 912, {"century_title": "X wiek", "year_title": "912"})]
