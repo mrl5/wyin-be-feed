@@ -45,7 +45,9 @@ class _Event(IHttpRequestHandler):
             )
 
         event = self._get_historical_event(century_resp, year_resp, titles)
-        return SingleHistoryEventModel(data=event["data"], source=event["source"])
+        return SingleHistoryEventModel(
+            year=self._year, data=event["data"], source=event["source"]
+        )
 
     async def _get_wiki_response(self, title: str) -> dict:
         response = await query(title, self._lang, self._client)
