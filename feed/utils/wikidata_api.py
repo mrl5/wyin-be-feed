@@ -16,6 +16,7 @@ from asyncio import gather
 from httpx import AsyncClient, Response
 from roman import InvalidRomanNumeralError, fromRoman
 
+from feed.conf import SUPPORTED_LANGUAGES
 from feed.errors import UnsupportedLanguageError
 from feed.utils.converters import convert_year_to_century
 from feed.utils.http_factory import get_async_client
@@ -62,7 +63,7 @@ async def get_wikipedia_title_for_century(
     century: str, lang: str, client: AsyncClient = None
 ) -> str:
     client = client if client is not None else get_async_client()
-    keyword = get_century_keyword(century, lang)
+    keyword = get_century_keyword(century)
     entities = await search_entities(keyword, lang, client)
     title_id = get_century_title_id(entities)
     entities = await get_entities(title_id, lang, client)
@@ -70,6 +71,7 @@ async def get_wikipedia_title_for_century(
 
 
 async def search_entities(keyword: str, lang: str, client: AsyncClient) -> dict:
+    throw_on_unsupported_language(lang)
     params = {
         "action": "wbsearchentities",
         "format": "json",
@@ -81,6 +83,7 @@ async def search_entities(keyword: str, lang: str, client: AsyncClient) -> dict:
 
 
 async def get_entities(title_id: str, lang: str, client: AsyncClient) -> dict:
+    throw_on_unsupported_language(lang)
     params = {
         "action": "wbgetentities",
         "format": "json",
@@ -97,9 +100,7 @@ async def query(client: AsyncClient, **kwargs) -> Response:
     return await client.get("https://www.wikidata.org/w/api.php", params=kwargs)
 
 
-def get_century_keyword(century: str, lang: str = "pl") -> str:
-    supported_languages = ["pl"]
-    throw_on_unsupported_language(lang, supported_languages)
+def get_century_keyword(century: str) -> str:
     throw_on_bad_roman_number(century)
     return f"{century} wiek"
 
@@ -143,6 +144,8 @@ def throw_on_bad_roman_number(roman_number: str) -> None:
     fromRoman(roman_number)
 
 
-def throw_on_unsupported_language(language: str, supported_languages: list) -> None:
+def throw_on_unsupported_language(
+    language: str, supported_languages: list = SUPPORTED_LANGUAGES
+) -> None:
     if language not in supported_languages:
         raise UnsupportedLanguageError(f"unsupported language: {language}")

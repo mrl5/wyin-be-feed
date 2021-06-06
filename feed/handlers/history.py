@@ -11,6 +11,7 @@ from urllib.parse import quote
 
 from pydantic import BaseModel, validator
 
+from feed.conf import DEFAULT_LANGUAGE
 from feed.handlers.decorators import decode_request_params
 from feed.interfaces.handlers import IHttpRequestHandler
 from feed.models.history import SingleHistoryEventModel
@@ -23,13 +24,14 @@ from feed.utils.scrapers import (
 from feed.utils.wikidata_api import (
     CenturyAndYearTitles,
     get_wikipedia_titles_for_century_and_year,
+    throw_on_unsupported_language,
 )
 from feed.utils.wikipedia_api import get_wiki_page_content, query
 
 
 class _Event(IHttpRequestHandler):
     _year: int
-    _lang: str = "pl"
+    _lang: str = DEFAULT_LANGUAGE
 
     def __init__(self):
         self._client = get_async_client()
@@ -72,11 +74,26 @@ class _Event(IHttpRequestHandler):
 
 class EventParams(BaseModel):
     t: str
+    lang: str = DEFAULT_LANGUAGE
 
     @validator("t")
     def time_in_24_hour_clock_format(cls, v):
         strptime(v, "%H:%M")
         return v
+
+    @validator("lang")
+    def lang_supported_by_wikipedia(cls, lang):
+        throw_on_unsupported_language(lang)
+        return lang
+
+
+class EventRandomParams(BaseModel):
+    lang: str = DEFAULT_LANGUAGE
+
+    @validator("lang")
+    def lang_supported_by_wikipedia(cls, lang):
+        throw_on_unsupported_language(lang)
+        return lang
 
 
 class Event(_Event):
@@ -87,16 +104,19 @@ class Event(_Event):
 
     async def handle(self) -> SingleHistoryEventModel:
         self._year = convert_time_to_year(self._params.t)
+        self._lang = self._params.lang
         return await super().handle()
 
 
 class EventRandom(_Event):
     @decode_request_params
-    def __init__(self):
+    def __init__(self, params: dict = {}):
         super().__init__()
+        self._params = EventRandomParams(**params)
 
     async def handle(self) -> SingleHistoryEventModel:
         self._year = self._get_random_year()
+        self._lang = self._params.lang
         return await super().handle()
 
     def _get_random_year(self) -> int:

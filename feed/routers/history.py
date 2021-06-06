@@ -3,9 +3,12 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
+from typing import Optional
+
 from fastapi import APIRouter, Query
 from fastapi.responses import JSONResponse
 
+from feed.conf import DEFAULT_LANGUAGE
 from feed.errors import NotFoundError
 from feed.handlers.history import Event, EventRandom
 from feed.interfaces.handlers import IHttpRequestHandler
@@ -13,20 +16,26 @@ from feed.models.history import NotFoundModel, SingleHistoryEventModel
 
 router = APIRouter(prefix="/history", tags=["history"])
 
+time_param = Query(
+    ...,
+    regex="^[0-9]{1,2}(:|%3A)[0-9]{2}$",
+    title="time",
+    description="24-hour clock time in %H:%M format",
+)
+lang_param = Query(
+    DEFAULT_LANGUAGE,
+    regex="^[-a-z]{2,12}$",
+    title="language",
+    description="language of served data",
+)
+
 
 @router.get(
     "/event",
     response_model=SingleHistoryEventModel,
     responses={404: {"model": NotFoundModel}},
 )
-async def get_event(
-    t: str = Query(
-        ...,
-        regex="^[0-9]{1,2}(:|%3A)[0-9]{2}$",
-        title="time",
-        description="24-hour clock time in %H:%M format",
-    )
-):
+async def get_event(t: str = time_param, lang: Optional[str] = lang_param):
     h: IHttpRequestHandler = Event(locals())
     try:
         return await h.handle()
@@ -40,8 +49,8 @@ async def get_event(
     response_model=SingleHistoryEventModel,
     responses={404: {"model": NotFoundModel}},
 )
-async def get_event_random():
-    h: IHttpRequestHandler = EventRandom()
+async def get_event_random(lang: Optional[str] = lang_param):
+    h: IHttpRequestHandler = EventRandom(locals())
     try:
         return await h.handle()
     except NotFoundError as nfe:
