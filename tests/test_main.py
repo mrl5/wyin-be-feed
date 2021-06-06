@@ -97,6 +97,7 @@ async def test_nocontent_response(monkeypatch):
 @pytest.mark.parametrize("params", cors_params)
 async def test_cors_headers(params, monkeypatch):
     monkeypatch_history_event_handler(monkeypatch)
+    monkeypatch_history_event_random_handler(monkeypatch)
     headers = {"origin": "http://test"}
     responses = []
     async with AsyncClient(app=app, base_url="http://test") as ac:
@@ -109,6 +110,7 @@ async def test_cors_headers(params, monkeypatch):
 @pytest.mark.asyncio
 async def test_http_timeout(monkeypatch):
     monkeypatch_history_event_handler(monkeypatch, force_timeout=True)
+    monkeypatch_history_event_random_handler(monkeypatch, force_timeout=True)
     responses = []
     async with AsyncClient(app=app, base_url="http://test") as ac:
         responses.append(await ac.get("/history/event", params={"t": "10:20"}))
