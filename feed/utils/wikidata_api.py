@@ -84,11 +84,12 @@ async def search_entities(keyword: str, lang: str, client: AsyncClient) -> dict:
 
 async def get_entities(title_id: str, lang: str, client: AsyncClient) -> dict:
     throw_on_unsupported_language(lang)
+    sitefilter = get_sitefilter(lang)
     params = {
         "action": "wbgetentities",
         "format": "json",
         "props": "sitelinks",
-        "sitefilter": f"{lang}wiki",
+        "sitefilter": sitefilter,
         "ids": title_id,
         "language": lang,
     }
@@ -135,7 +136,12 @@ def get_title_id(
 
 
 def get_title(entities: dict, title_id: str, lang: str) -> str:
-    return entities["entities"][title_id]["sitelinks"][f"{lang}wiki"]["title"]
+    sitefilter = get_sitefilter(lang)
+    return entities["entities"][title_id]["sitelinks"][sitefilter]["title"]
+
+
+def get_sitefilter(lang: str) -> str:
+    return f"{lang.replace('-', '_')}wiki"
 
 
 def throw_on_bad_roman_number(roman_number: str) -> None:
