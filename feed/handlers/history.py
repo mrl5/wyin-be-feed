@@ -15,7 +15,7 @@ from feed.conf import DEFAULT_LANGUAGE
 from feed.handlers.decorators import decode_request_params
 from feed.interfaces.handlers import IHttpRequestHandler
 from feed.models.history import SingleHistoryEventModel
-from feed.utils.converters import convert_time_to_year
+from feed.utils.converters import convert_time_to_year, throw_on_invalid_year
 from feed.utils.http_factory import get_async_client
 from feed.utils.scrapers import (
     get_random_event_from_year_page,
@@ -98,6 +98,22 @@ class EventRandomParams(BaseModel):
         return lang
 
 
+class EventYearParams(BaseModel):
+    year: int
+    lang: str = DEFAULT_LANGUAGE
+
+    @validator("year")
+    def valid_year(cls, v):
+        y = int(v)
+        throw_on_invalid_year(y)
+        return y
+
+    @validator("lang")
+    def lang_supported_by_wikipedia(cls, lang):
+        throw_on_unsupported_language(lang)
+        return lang
+
+
 class Event(_Event):
     @decode_request_params
     def __init__(self, params: dict):
@@ -123,3 +139,15 @@ class EventRandom(_Event):
 
     def _get_random_year(self) -> int:
         return randrange(1, datetime.now().year)
+
+
+class EventYear(_Event):
+    @decode_request_params
+    def __init__(self, params: dict):
+        super().__init__()
+        self._params = EventYearParams(**params)
+
+    async def handle(self) -> SingleHistoryEventModel:
+        self._year = self._params.year
+        self._lang = self._params.lang
+        return await super().handle()

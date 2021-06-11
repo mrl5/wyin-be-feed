@@ -9,7 +9,7 @@ from urllib.parse import unquote
 
 def decode_request_params(f):
     def get_decoded_dict(a_dict: dict) -> dict:
-        return {k: unquote(v) for k, v in a_dict.items()}
+        return {k: unquote(v) if type(v) is str else v for k, v in a_dict.items()}
 
     @wraps(f)
     def wrapper(*args, **kwargs):
