@@ -40,7 +40,7 @@ async def get_event(t: str = time_param, lang: Optional[str] = lang_param):
         h: IHttpRequestHandler = Event(locals())
         return await h.handle()
     except NotFoundError as nfe:
-        content = NotFoundModel(body=str(nfe), code=nfe.code).json()
+        content = NotFoundModel(body=str(nfe), code=nfe.code, year=nfe.year).dict()
         return JSONResponse(status_code=404, content=content)
 
 
@@ -54,7 +54,7 @@ async def get_event_random(lang: Optional[str] = lang_param):
         h: IHttpRequestHandler = EventRandom(locals())
         return await h.handle()
     except NotFoundError as nfe:
-        content = NotFoundModel(body=str(nfe), code=nfe.code).json()
+        content = NotFoundModel(body=str(nfe), code=nfe.code, year=nfe.year).dict()
         return JSONResponse(status_code=404, content=content)
 
 
@@ -68,5 +68,5 @@ async def get_event_year(year: int, lang: Optional[str] = lang_param):
         h: IHttpRequestHandler = EventYear(locals())
         return await h.handle()
     except NotFoundError as nfe:
-        content = NotFoundModel(body=str(nfe), code=nfe.code).json()
+        content = NotFoundModel(body=str(nfe), code=nfe.code, year=nfe.year).dict()
         return JSONResponse(status_code=404, content=content)

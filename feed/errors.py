@@ -13,7 +13,8 @@ class WyinFeedBaseError(Exception):
 
 
 class NotFoundError(WyinFeedBaseError, metaclass=ABCMeta):
-    def __init__(self, msg):
+    def __init__(self, msg, year: int = None):
+        self.year = year
         self.msg = msg
         self.code = NotFoundCodeEnum[self.__class__.__name__].value
 

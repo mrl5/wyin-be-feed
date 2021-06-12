@@ -12,6 +12,7 @@ from urllib.parse import quote
 from pydantic import BaseModel, validator
 
 from feed.conf import DEFAULT_LANGUAGE
+from feed.errors import NotFoundError
 from feed.handlers.decorators import decode_request_params
 from feed.interfaces.handlers import IHttpRequestHandler
 from feed.models.history import SingleHistoryEventModel
@@ -65,7 +66,11 @@ class _Event(IHttpRequestHandler):
             return {"data": data, "source": source}
 
         html = get_wiki_page_content(year_resp)
-        data = get_random_event_from_year_page(html)
+        try:
+            data = get_random_event_from_year_page(html)
+        except NotFoundError as nfe:
+            nfe.year = self._year
+            raise nfe
         source = self._get_source(titles["year_title"])
         return {"data": data, "source": source}
 

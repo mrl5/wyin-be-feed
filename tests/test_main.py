@@ -3,7 +3,6 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-import json
 from asyncio import wait
 
 import pytest
@@ -61,7 +60,8 @@ async def test_history_event(status_code, params, monkeypatch):
     if status_code == 200:
         assert response.json() == get_event_response("pl_event")
     if status_code == 404:
-        assert json.loads(response.json())["code"] == "NF001"
+        assert "year" in response.json()
+        assert response.json()["code"] == "NF001"
 
 
 @pytest.mark.asyncio
@@ -91,7 +91,8 @@ async def test_midnight_response(monkeypatch):
     async with AsyncClient(app=app, base_url="http://test") as ac:
         response = await ac.get("/history/event", params={"t": "0:00"})
     assert response.status_code == 404
-    assert json.loads(response.json())["code"] == "NF002"
+    assert response.json()["year"] == 0
+    assert response.json()["code"] == "NF002"
 
 
 @pytest.mark.asyncio
@@ -100,7 +101,8 @@ async def test_nocontent_response(monkeypatch):
     async with AsyncClient(app=app, base_url="http://test") as ac:
         response = await ac.get("/history/event", params={"t": "0:57"})
     assert response.status_code == 404
-    assert json.loads(response.json())["code"] == "NF003"
+    assert response.json()["year"] == 57
+    assert response.json()["code"] == "NF003"
 
 
 @pytest.mark.asyncio
