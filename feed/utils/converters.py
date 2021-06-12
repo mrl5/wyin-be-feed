@@ -26,6 +26,6 @@ def convert_year_to_century(year: int) -> str:
 def throw_on_invalid_year(year: int) -> None:
     assert year >= 0
     if year == 0:
-        raise BeforeCommonEraError("this year is from before common era")
+        raise BeforeCommonEraError("this year is from before common era", year=year)
     if year > datetime.now().year:
-        raise FutureYearError("this year is from future")
+        raise FutureYearError("this year is from future", year=year)

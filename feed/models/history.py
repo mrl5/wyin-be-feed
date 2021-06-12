@@ -15,5 +15,6 @@ class SingleHistoryEventModel(BaseModel):
 
 
 class NotFoundModel(BaseModel):
+    year: int
     body: str
     code: NotFoundCodeEnum
