@@ -76,6 +76,16 @@ async def test_history_event_random(monkeypatch):
 
 
 @pytest.mark.asyncio
+async def test_history_event_year(monkeypatch):
+    monkeypatch_history_event_handler(monkeypatch)
+    async with AsyncClient(app=app, base_url="http://test") as ac:
+        response = await ac.get("/history/event/908")
+
+    assert response.status_code == 200
+    assert response.json() == get_event_response("pl_event")
+
+
+@pytest.mark.asyncio
 async def test_midnight_response(monkeypatch):
     monkeypatch_history_event_handler(monkeypatch)
     async with AsyncClient(app=app, base_url="http://test") as ac:
@@ -103,6 +113,7 @@ async def test_cors_headers(params, monkeypatch):
     async with AsyncClient(app=app, base_url="http://test") as ac:
         responses.append(await ac.get("/history/event", params=params, headers=headers))
         responses.append(await ac.get("/history/event/random", headers=headers))
+        responses.append(await ac.get("/history/event/1020", headers=headers))
     for r in responses:
         assert r.headers["access-control-allow-origin"] in ALLOWED_ORIGINS
 
@@ -115,5 +126,6 @@ async def test_http_timeout(monkeypatch):
     async with AsyncClient(app=app, base_url="http://test") as ac:
         responses.append(await ac.get("/history/event", params={"t": "10:20"}))
         responses.append(await ac.get("/history/event/random"))
+        responses.append(await ac.get("/history/event/1020"))
     for r in responses:
         assert r.status_code == 504
