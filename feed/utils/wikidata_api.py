@@ -4,14 +4,8 @@
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
 import re
-import sys
-
-if sys.version_info < (3, 8):
-    from typing_extensions import TypedDict
-else:
-    from typing import TypedDict
-
 from asyncio import gather
+from dataclasses import dataclass
 
 from httpx import AsyncClient, Response
 from roman import InvalidRomanNumeralError, fromRoman
@@ -22,7 +16,8 @@ from feed.utils.converters import convert_year_to_century
 from feed.utils.http_factory import get_async_client
 
 
-class CenturyAndYearTitles(TypedDict):
+@dataclass
+class CenturyAndYearTitles:
     century_title: str
     year_title: str
 
@@ -43,10 +38,10 @@ async def get_wikipedia_titles_for_century_and_year(
     ids = "|".join([century_title_id, year_title_id])
     entities = await get_entities(ids, lang, client)
 
-    return {
-        "century_title": get_title(entities, century_title_id, lang),
-        "year_title": get_title(entities, year_title_id, lang),
-    }
+    return CenturyAndYearTitles(
+        century_title=get_title(entities, century_title_id, lang),
+        year_title=get_title(entities, year_title_id, lang),
+    )
 
 
 async def get_wikipedia_title_for_year(

@@ -4,16 +4,25 @@
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
 import re
+from dataclasses import dataclass
 from random import choice
 from typing import Iterator, Optional
 
 from bs4 import BeautifulSoup
-from bs4.element import NavigableString
+from bs4.element import NavigableString, Tag
 
 from feed.errors import NoContentError
 
 
-def get_year_event_from_century_page(year: int, century_page: str) -> Optional[str]:
+@dataclass
+class EventAndCategory:
+    event: str
+    category: Optional[str]
+
+
+def get_year_event_from_century_page(
+    year: int, century_page: str
+) -> Optional[EventAndCategory]:
     soup = BeautifulSoup(century_page, features="html.parser")
     year_first_pattern = re.compile(
         rf"""        # https://www.python.org/dev/peps/pep-0498/#raw-f-strings
@@ -38,13 +47,18 @@ def get_year_event_from_century_page(year: int, century_page: str) -> Optional[s
 
     for tag in tags:
         if tag is not None:
+            category = get_category(tag)
             text = tag.get_text()
             condition_for_none = text.endswith(" -") or str(year) not in text
-            return None if condition_for_none else text
+            return (
+                None
+                if condition_for_none
+                else EventAndCategory(event=text, category=category)
+            )
     return None
 
 
-def get_random_event_from_year_page(year_page: str) -> str:
+def get_random_event_from_year_page(year_page: str) -> EventAndCategory:
     soup = BeautifulSoup(year_page, features="html.parser")
     tags = soup.find_all(name="li")
     leaf_tags = [
@@ -53,7 +67,23 @@ def get_random_event_from_year_page(year_page: str) -> str:
 
     if len(leaf_tags) == 0:
         raise NoContentError("no content for given year")
-    return choice(leaf_tags).get_text()
+    tag = choice(leaf_tags)
+    category = get_category(tag)
+    text = tag.get_text()
+    return EventAndCategory(event=text, category=category)
+
+
+def get_category(tag: Tag) -> Optional[str]:
+    try:
+        siblings = list(
+            filter(
+                lambda x: type(x) is Tag and x.name == "h2",
+                list(tag.parent.previous_siblings),
+            )
+        )
+        return siblings[0].get_text()
+    except IndexError:
+        return None
 
 
 def safe_next(iterator: Iterator[str]) -> Optional[str]:

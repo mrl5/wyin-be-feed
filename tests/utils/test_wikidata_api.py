@@ -9,6 +9,7 @@ from roman import InvalidRomanNumeralError
 
 from feed.errors import UnsupportedLanguageError
 from feed.utils.wikidata_api import (
+    CenturyAndYearTitles,
     get_title_id,
     get_wikipedia_title_for_century,
     get_wikipedia_title_for_year,
@@ -56,7 +57,9 @@ century_exceptions = [
     ("X", "foobar", UnsupportedLanguageError),
 ]
 
-century_year_cases = [("pl", 912, {"century_title": "X wiek", "year_title": "912"})]
+century_year_cases = [
+    ("pl", 912, CenturyAndYearTitles(century_title="X wiek", year_title="912"))
+]
 
 title_id_exceptions = [
     ({"description": None, "label": None}, ValueError),
