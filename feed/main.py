@@ -11,7 +11,7 @@ from fastapi.responses import JSONResponse
 from httpx import TimeoutException
 
 from feed.conf import ALLOWED_ORIGINS
-from feed.errors import BeforeCommonEraError, FutureYearError, NoContentError
+from feed.errors import UnsupportedLanguageError
 from feed.routers import health, history
 
 app = FastAPI()
@@ -28,6 +28,7 @@ app.include_router(history.router)
 
 
 @app.exception_handler(RequestValidationError)
+@app.exception_handler(UnsupportedLanguageError)
 async def request_validation_exception_handler(request, exc):
     return JSONResponse(status_code=400, content={"body": "Bad Request"})
 
