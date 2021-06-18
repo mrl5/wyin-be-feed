@@ -131,3 +131,25 @@ async def test_http_timeout(monkeypatch):
         responses.append(await ac.get("/history/event/1020"))
     for r in responses:
         assert r.status_code == 504
+
+
+@pytest.mark.asyncio
+async def test_lang_exceptions(monkeypatch):
+    monkeypatch_history_event_handler(monkeypatch)
+    monkeypatch_history_event_random_handler(monkeypatch)
+    responses = []
+    unsupported_lang = "abc"
+    async with AsyncClient(app=app, base_url="http://test") as ac:
+        responses.append(
+            await ac.get(
+                "/history/event", params={"t": "10:20", "lang": unsupported_lang}
+            )
+        )
+        responses.append(
+            await ac.get("/history/event/random", params={"lang": unsupported_lang})
+        )
+        responses.append(
+            await ac.get("/history/event/1020", params={"lang": unsupported_lang})
+        )
+    for r in responses:
+        assert r.status_code == 400
