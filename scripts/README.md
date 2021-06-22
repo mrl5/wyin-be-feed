@@ -54,3 +54,17 @@ For running script with chosen values, use parameter -type_hours and list values
 ## Interruption
 
 To interrupt running script press CTRL+'C'
+
+## Regression2.sh
+
+It can be run in local git bash window
+```
+./regression2.sh
+```
+
+It needs a directory ./logs to create logs in.
+
+Range of years can be changed inside the script inside for loop
+```
+for i in {<starting_value>..<ending_value>}
+```

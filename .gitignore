@@ -282,4 +282,4 @@ tags
 # End of https://www.toptal.com/developers/gitignore/api/python,vim,pycharm,visualstudiocode
 
 # excluding log folder
-./scripts/logs
+scripts/logs
