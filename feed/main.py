@@ -3,6 +3,8 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
+from os import environ
+
 from fastapi import FastAPI
 from fastapi.exceptions import RequestValidationError, ValidationError
 from fastapi.middleware.cors import CORSMiddleware
@@ -59,13 +61,20 @@ def replace_false_422(openapi_schema, true_status_code: int = 400):
     return openapi_schema
 
 
+def get_version():
+    if "API_VERSION" in environ:
+        return environ["API_VERSION"]
+    else:
+        return "latest"
+
+
 def custom_openapi():
     if app.openapi_schema:
         return app.openapi_schema
 
     openapi_schema = get_openapi(
         title="WYIN feed",
-        version="0.1.0",
+        version=get_version(),
         description="WYIN feed API serving historical events",
         routes=app.routes,
     )

@@ -1,11 +1,12 @@
 SHELL=/bin/sh
+API_VERSION="latest"
 
 .PHONY: all help build run serve install install-dev dev-install lint test run-dev dev-run
 
 all: help
 
 build:
-	docker build -t wyin-be-feed .
+	docker build --build-arg BUILD_VERSION=$(API_VERSION) -t wyin-be-feed .
 
 run:
 	docker run -p 8080:8080 wyin-be-feed:latest
