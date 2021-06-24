@@ -1,5 +1,6 @@
 # https://github.com/GoogleContainerTools/distroless/blob/master/examples/python3-requirements/Dockerfile
 
+ARG BUILD_VERSION="latest"
 FROM debian:buster-slim AS build
 # hadolint ignore=DL3008
 RUN apt-get update && \
@@ -21,6 +22,6 @@ COPY --from=build-venv /venv /venv
 COPY feed /wyin-be-feed/feed
 WORKDIR /wyin-be-feed
 EXPOSE 8080
-ARG BUILD_VERSION="latest"
+ARG BUILD_VERSION
 ENV API_VERSION=$BUILD_VERSION
 ENTRYPOINT ["/venv/bin/uvicorn", "feed.main:app", "--host", "0.0.0.0", "--port", "8080"]
