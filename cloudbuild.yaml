@@ -1,9 +1,7 @@
 # https://medium.com/google-cloud/deploy-to-cloud-run-using-gitlab-ci-e056685b8eeb
 steps:
   - name: 'gcr.io/cloud-builders/docker'
-    env:
-      - 'API_VERSION=$_API_VERSION'
-    args: ['build', '--build-arg', 'BUILD_VERSION=$API_VERSION', '--pull', '-t', 'gcr.io/$PROJECT_ID/wyin-be-feed', '.']
+    args: ['build', '--build-arg', 'BUILD_VERSION=${_API_VERSION}', '--pull', '-t', 'gcr.io/$PROJECT_ID/wyin-be-feed', '.']
 
   - name: 'gcr.io/cloud-builders/docker'
     args: ['push', 'gcr.io/$PROJECT_ID/wyin-be-feed']
