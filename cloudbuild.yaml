@@ -2,7 +2,7 @@
 steps:
   - name: 'gcr.io/cloud-builders/docker'
     env:
-      - 'API_VERSION=$API_VERSION'
+      - 'API_VERSION=$_API_VERSION'
     args: ['build', '--build-arg', 'BUILD_VERSION=$API_VERSION', '--pull', '-t', 'gcr.io/$PROJECT_ID/wyin-be-feed', '.']
 
   - name: 'gcr.io/cloud-builders/docker'
