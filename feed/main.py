@@ -65,6 +65,7 @@ def get_version():
     if "API_VERSION" in environ:
         return environ["API_VERSION"]
     else:
+        print("zonk")
         return "latest"
 
 
