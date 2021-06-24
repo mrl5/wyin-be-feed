@@ -21,4 +21,6 @@ COPY --from=build-venv /venv /venv
 COPY feed /wyin-be-feed/feed
 WORKDIR /wyin-be-feed
 EXPOSE 8080
+ARG BUILD_VERSION="latest"
+ENV API_VERSION=$BUILD_VERSION
 ENTRYPOINT ["/venv/bin/uvicorn", "feed.main:app", "--host", "0.0.0.0", "--port", "8080"]
