@@ -89,7 +89,7 @@ build_docker:
     - apk update
     - apk add make
   script:
-    - make API_VERSION=$CI_COMMIT_SHORT_SHA build
+    - make API_VERSION="$CI_COMMIT_SHORT_SHA" build
 
 build_latest_docker:
   stage: build
@@ -106,7 +106,7 @@ build_latest_docker:
   before_script:
     - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
   script:
-    - docker build --build-arg BUILD_VERSION=$CI_COMMIT_SHORT_SHA --pull -t $CONTAINER_SHA_IMAGE .
+    - docker build --build-arg BUILD_VERSION="$CI_COMMIT_SHORT_SHA" --pull -t $CONTAINER_SHA_IMAGE .
     - docker push $CONTAINER_SHA_IMAGE
     - docker tag $CONTAINER_SHA_IMAGE $CONTAINER_LATEST_IMAGE
     - docker push $CONTAINER_LATEST_IMAGE
@@ -126,7 +126,7 @@ build_release_docker:
   before_script:
     - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
   script:
-    - docker build --build-arg BUILD_VERSION=$CI_COMMIT_TAG --pull -t $CONTAINER_SHA_IMAGE .
+    - docker build --build-arg BUILD_VERSION="$CI_COMMIT_TAG" --pull -t $CONTAINER_SHA_IMAGE .
     - docker tag $CONTAINER_SHA_IMAGE $CONTAINER_RELEASE_IMAGE
     - docker push $CONTAINER_RELEASE_IMAGE
 
