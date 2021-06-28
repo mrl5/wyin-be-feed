@@ -20,6 +20,13 @@ mock_regex_hell_1_html = '<h2><span id="Wydarzenia_historyczne">Wydarzenia histo
 mock_regex_hell_2_html = '<h2><span id="Wydarzenia_historyczne">Wydarzenia historyczne</span></h2>\n\n\n\n\n<ul><li>1301 - papież Bonifacy VIII wydał bullę <i>Ausculta fili carissime</i>, w której zagroził ekskomuniką królowi Francji Filipowi IV, w związku z nałożeniem przez niego podatku na duchownych i przejęcie sądów nad nimi (5 grudnia)</li>\n<li>1302 - Dante Alighieri został skazany na wygnanie z Florencji (27 stycznia)</li></ul>'
 year_events = [
     (
+        1,
+        EventAndCategory(
+            event="1 – początek naszej ery", category="Wydarzenia w Europie"
+        ),
+        get_wiki_page_content(get_wiki_response("pl_wiki_century_1")),
+    ),
+    (
         908,
         EventAndCategory(
             event="908 - w Bagdadzie odnotowano opady śniegu",
