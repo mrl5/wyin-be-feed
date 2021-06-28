@@ -28,6 +28,7 @@ def get_year_event_from_century_page(
         rf"""        # https://www.python.org/dev/peps/pep-0498/#raw-f-strings
         ^            # start of string (see: https://www.regular-expressions.info/anchors.html)
         {str(year)}  # injected year variable as f-string
+        [^0-9]       # any char that's not a digit
     """,
         re.VERBOSE,  # https://docs.python.org/3/library/re.html#re.VERBOSE
     )
@@ -35,6 +36,7 @@ def get_year_event_from_century_page(
         rf"""
         [^/\-\–]     # negated characters (see: https://www.regular-expressions.info/charclass.html)
         {str(year)}
+        [^0-9]
     """,
         re.VERBOSE,
     )
