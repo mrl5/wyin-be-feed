@@ -12,6 +12,9 @@ stages:
 default:
   image: python:3.7
 
+include:
+  - template: Security/SAST.gitlab-ci.yml
+
 setup_venv:
   stage: setup
   cache:
