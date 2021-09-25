@@ -15,10 +15,11 @@ serve:
 	docker run -d -p 8080:8080 wyin-be-feed:latest
 
 install:
-	pip install -r requirements.txt
+	pip install -r requirements.in
+	pip-compile --generate-hashes --output-file=requirements.txt requirements.in
 
 install-dev: install
-	pip install -r requirements-dev.txt
+	pip install -r requirements-dev.in
 
 dev-install: install-dev
 
