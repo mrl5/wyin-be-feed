@@ -32,7 +32,9 @@ def client():
 @pytest.mark.asyncio
 @pytest.mark.parametrize("lang", languages)
 async def test_query_year(client, lang):
-    client.params.update({"lang": lang})  # this is needed only to parametrize fake_app
+    client.params = client.params.merge(
+        {"lang": lang}
+    )  # this is needed only to parametrize fake_app
     async with client:
         response = await query_year(13, lang, client)
     assert response == get_wiki_response(f"{lang}_wiki_year")
@@ -41,7 +43,9 @@ async def test_query_year(client, lang):
 @pytest.mark.asyncio
 async def test_query_century(client):
     lang = "pl"
-    client.params.update({"lang": lang})  # this is needed only to parametrize fake_app
+    client.params = client.params.merge(
+        {"lang": lang}
+    )  # this is needed only to parametrize fake_app
     async with client:
         response = await query_century("X", lang, client)
     assert response == get_wiki_response(f"{lang}_wiki_century")
