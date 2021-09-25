@@ -9,7 +9,8 @@ from fastapi import FastAPI
 from fastapi.exceptions import RequestValidationError, ValidationError
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.openapi.utils import get_openapi
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, RedirectResponse
+from fastapi.staticfiles import StaticFiles
 from httpx import TimeoutException
 
 from feed.conf import ALLOWED_ORIGINS
@@ -27,6 +28,12 @@ app.add_middleware(
 
 app.include_router(health.router)
 app.include_router(history.router)
+app.mount("/.well-known", StaticFiles(directory="feed/static"), name="static")
+
+
+@app.get("/security.txt")
+def redirect_security():
+    return RedirectResponse(url="/.well-known/security.txt")
 
 
 @app.exception_handler(RequestValidationError)
