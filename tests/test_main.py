@@ -50,6 +50,16 @@ async def test_health():
 
 
 @pytest.mark.asyncio
+@pytest.mark.parametrize("path", ("/.well-known/security.txt", "/security.txt"))
+async def test_security(path):
+    expected_content = "# Our security address\nContact: https://gitlab.com/spio-wyin/wyin-be-feed/-/issues"
+    async with AsyncClient(app=app, base_url="http://test") as ac:
+        response = await ac.get(path)
+    assert response.status_code == 200
+    assert response.text.strip() == expected_content
+
+
+@pytest.mark.asyncio
 @pytest.mark.parametrize("status_code, params", history_event_cases)
 async def test_history_event(status_code, params, monkeypatch):
     monkeypatch_history_event_handler(monkeypatch)

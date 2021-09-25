@@ -1,0 +1,2 @@
+# Our security address
+Contact: https://gitlab.com/spio-wyin/wyin-be-feed/-/issues
