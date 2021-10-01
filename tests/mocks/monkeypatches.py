@@ -7,8 +7,8 @@ from random import choice
 
 from httpx import AsyncClient
 
-from feed.handlers import history
-from feed.handlers.history import EventRandom
+from feed.handlers import _event
+from feed.handlers.event_random import EventRandom
 from tests.mocks.fake_wikipedia_api import fake_app
 
 
@@ -31,4 +31,4 @@ def _monkeypatch_async_client(monkeypatch, force_timeout=False):
         timeout = 0.0 if force_timeout else None
         return AsyncClient(app=app, timeout=timeout)
 
-    monkeypatch.setattr(history, "get_async_client", mockreturn)
+    monkeypatch.setattr(_event, "get_async_client", mockreturn)

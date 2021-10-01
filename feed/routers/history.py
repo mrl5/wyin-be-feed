@@ -10,7 +10,9 @@ from fastapi.responses import JSONResponse
 
 from feed.conf import DEFAULT_LANGUAGE
 from feed.errors import NotFoundError
-from feed.handlers.history import Event, EventRandom, EventYear
+from feed.handlers.event_random import EventRandom
+from feed.handlers.event_time import EventTime
+from feed.handlers.event_year import EventYear
 from feed.interfaces.handlers import IHttpRequestHandler
 from feed.models.history import NotFoundModel, SingleHistoryEventModel
 
@@ -35,9 +37,9 @@ lang_param = Query(
     response_model=SingleHistoryEventModel,
     responses={404: {"model": NotFoundModel}},
 )
-async def get_event(t: str = time_param, lang: Optional[str] = lang_param):
+async def get_event_time(t: str = time_param, lang: Optional[str] = lang_param):
     try:
-        h: IHttpRequestHandler = Event(locals())
+        h: IHttpRequestHandler = EventTime(locals())
         return await h.handle()
     except NotFoundError as nfe:
         content = NotFoundModel(body=str(nfe), code=nfe.code, year=nfe.year).dict()
