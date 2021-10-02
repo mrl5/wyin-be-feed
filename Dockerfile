@@ -1,6 +1,6 @@
 # https://github.com/GoogleContainerTools/distroless/blob/master/examples/python3-requirements/Dockerfile
 
-FROM debian:buster-slim AS build
+FROM debian:10-slim AS build
 # hadolint ignore=DL3008
 RUN apt-get update && \
     apt-get install --no-install-suggests --no-install-recommends --yes \
