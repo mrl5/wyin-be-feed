@@ -8,7 +8,8 @@ from enum import Enum, unique
 import pytest
 from pydantic import ValidationError
 
-from feed.handlers.history import Event, EventRandom
+from feed.handlers.event_random import EventRandom
+from feed.handlers.event_time import EventTime
 from feed.interfaces.handlers import IHttpRequestHandler
 from tests.mocks.mock_factory import get_event_response, get_wiki_response
 from tests.mocks.monkeypatches import monkeypatch_history_event_handler
@@ -16,7 +17,7 @@ from tests.mocks.monkeypatches import monkeypatch_history_event_handler
 
 @unique
 class HandlersEnum(Enum):
-    event = Event
+    event_time = EventTime
     event_random = EventRandom
 
 
@@ -40,14 +41,14 @@ handlers = tuple(
 @pytest.fixture(scope="function")
 def event_handler(monkeypatch):
     monkeypatch_history_event_handler(monkeypatch)
-    o = handler_factory("event", valid_time_params[0])
+    o = handler_factory("event_time", valid_time_params[0])
     return o
 
 
 @pytest.fixture(scope="function")
 def event_handler_912(monkeypatch):
     monkeypatch_history_event_handler(monkeypatch)
-    o = handler_factory("event", {"t": "9:12"})
+    o = handler_factory("event_time", {"t": "9:12"})
     return o
 
 
@@ -67,7 +68,7 @@ async def test_event(valid_time_param, event_handler):
 @pytest.mark.parametrize("invalid_time_param", invalid_time_params)
 async def test_event_exceptions(invalid_time_param):
     with pytest.raises(ValidationError):
-        handler = handler_factory("event", invalid_time_param)
+        handler = handler_factory("event_time", invalid_time_param)
         await handler.handle()
 
 
