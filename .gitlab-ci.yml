@@ -160,7 +160,7 @@ deploy_ci:
     - gcloud auth activate-service-account --key-file gcloud-service-key.json
     - rm -r gcloud-service-key.json
     - gcloud config set project $GCP_PROJECT_ID_CI
-    - gcloud builds submit . --config=cloudbuild.yaml --substitutions _GITLAB_REGISTRY_IMAGE="CI_REGISTRY_IMAGE",_GIT_COMMIT_SHORT_SHA="$CI_COMMIT_SHORT_SHA"
+    - gcloud builds submit . --config=cloudbuild.yaml --substitutions _GITLAB_REGISTRY_IMAGE="$CI_REGISTRY_IMAGE",_GIT_COMMIT_SHORT_SHA="$CI_COMMIT_SHORT_SHA"
 
 deploy_prd:
   stage: deploy
@@ -175,4 +175,4 @@ deploy_prd:
     - gcloud auth activate-service-account --key-file gcloud-service-key.json
     - rm -r gcloud-service-key.json
     - gcloud config set project $GCP_PROJECT_ID_PRD
-    - gcloud builds submit . --config=cloudbuild.yaml --substitutions _GITLAB_REGISTRY_IMAGE="CI_REGISTRY_IMAGE",_GIT_COMMIT_SHORT_SHA="$CI_COMMIT_SHORT_SHA"
+    - gcloud builds submit . --config=cloudbuild.yaml --substitutions _GITLAB_REGISTRY_IMAGE="$CI_REGISTRY_IMAGE",_GIT_COMMIT_SHORT_SHA="$CI_COMMIT_SHORT_SHA"
