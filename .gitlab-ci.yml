@@ -82,8 +82,9 @@ build_docker:
   stage: build
   needs: [unit_test]
   image: docker
-  rules:
-    - if: '$CI_COMMIT_BRANCH && $CI_OPEN_MERGE_REQUESTS'
+  except:
+    - master
+    - tags
   variables:
     DOCKER_TLS_CERTDIR: "/certs"
   services:
@@ -99,8 +100,8 @@ build_latest_docker:
   stage: build
   needs: [unit_test]
   image: docker
-  rules:
-    - if: '$CI_COMMIT_BRANCH == "master"'
+  only:
+    - master
   variables:
     DOCKER_TLS_CERTDIR: "/certs"
     CONTAINER_SHA_IMAGE: $CI_REGISTRY_IMAGE:$CI_COMMIT_SHORT_SHA
@@ -151,8 +152,8 @@ deploy_ci:
   stage: deploy
   needs: [build_latest_docker]
   image: google/cloud-sdk:latest
-  rules:
-    - if: '$CI_COMMIT_BRANCH == "master"'
+  only:
+    - master
   services:
     - docker:dind
   script:
