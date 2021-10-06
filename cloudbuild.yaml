@@ -1,7 +1,16 @@
 # https://medium.com/google-cloud/deploy-to-cloud-run-using-gitlab-ci-e056685b8eeb
 steps:
   - name: 'gcr.io/cloud-builders/docker'
-    args: ['build', '--build-arg', 'BUILD_VERSION=${_API_VERSION}', '--pull', '-t', 'gcr.io/$PROJECT_ID/wyin-be-feed', '.']
+    args: ['pull', '${_GITLAB_REGISTRY_IMAGE}:${_GIT_COMMIT_SHORT_SHA}']
+
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['tag', '${_GITLAB_REGISTRY_IMAGE}:${_GIT_COMMIT_SHORT_SHA}', 'gcr.io/$PROJECT_ID/wyin-be-feed:${_GIT_COMMIT_SHORT_SHA}']
+
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['tag', '${_GITLAB_REGISTRY_IMAGE}:${_GIT_COMMIT_SHORT_SHA}', 'gcr.io/$PROJECT_ID/wyin-be-feed']
+
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['push', 'gcr.io/$PROJECT_ID/wyin-be-feed:${_GIT_COMMIT_SHORT_SHA}']
 
   - name: 'gcr.io/cloud-builders/docker'
     args: ['push', 'gcr.io/$PROJECT_ID/wyin-be-feed']
@@ -11,7 +20,7 @@ steps:
       'run',
       'deploy',
       'wyin-be-feed',
-      '--image', 'gcr.io/$PROJECT_ID/wyin-be-feed',
+      '--image', 'gcr.io/$PROJECT_ID/wyin-be-feed:${_GIT_COMMIT_SHORT_SHA}',
       '--region', 'europe-west4', # https://cloud.google.com/compute/docs/regions-zones#available
       '--platform', 'managed',
       '--concurrency', '80',
