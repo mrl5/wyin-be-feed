@@ -158,8 +158,9 @@ deploy_ci:
   script:
     - echo $GCP_SERVICE_KEY_CI | base64 -d > gcloud-service-key.json
     - gcloud auth activate-service-account --key-file gcloud-service-key.json
+    - rm -r gcloud-service-key.json
     - gcloud config set project $GCP_PROJECT_ID_CI
-    - gcloud builds submit . --config=cloudbuild.yaml --substitutions _API_VERSION="$CI_COMMIT_SHORT_SHA"
+    - gcloud builds submit . --config=cloudbuild.yaml --substitutions _GITLAB_REGISTRY_IMAGE="CI_REGISTRY_IMAGE",_GIT_COMMIT_SHORT_SHA="$CI_COMMIT_SHORT_SHA"
 
 deploy_prd:
   stage: deploy
@@ -172,5 +173,6 @@ deploy_prd:
   script:
     - echo $GCP_SERVICE_KEY_PRD | base64 -d > gcloud-service-key.json
     - gcloud auth activate-service-account --key-file gcloud-service-key.json
+    - rm -r gcloud-service-key.json
     - gcloud config set project $GCP_PROJECT_ID_PRD
-    - gcloud builds submit . --config=cloudbuild.yaml --substitutions _API_VERSION="$CI_COMMIT_TAG"
+    - gcloud builds submit . --config=cloudbuild.yaml --substitutions _GITLAB_REGISTRY_IMAGE="CI_REGISTRY_IMAGE",_GIT_COMMIT_SHORT_SHA="$CI_COMMIT_SHORT_SHA"
