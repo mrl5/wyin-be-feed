@@ -7,13 +7,13 @@ from time import strptime
 
 from pydantic import validator
 
-from feed.handlers._event import _Event, _EventParams
 from feed.handlers.decorators import decode_request_params
+from feed.handlers.event import Event, EventParams
 from feed.models.history import SingleHistoryEventModel
 from feed.utils.converters import convert_time_to_year
 
 
-class EventTimeParams(_EventParams):
+class EventTimeParams(EventParams):
     t: str
 
     @validator("t")
@@ -22,7 +22,7 @@ class EventTimeParams(_EventParams):
         return v
 
 
-class EventTime(_Event):
+class EventTime(Event):
     @decode_request_params
     def __init__(self, params: dict):
         super().__init__(params)

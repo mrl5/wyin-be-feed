@@ -5,13 +5,13 @@
 
 from pydantic import validator
 
-from feed.handlers._event import _Event, _EventParams
 from feed.handlers.decorators import decode_request_params
+from feed.handlers.event import Event, EventParams
 from feed.models.history import SingleHistoryEventModel
 from feed.utils.converters import throw_on_invalid_year
 
 
-class EventYearParams(_EventParams):
+class EventYearParams(EventParams):
     year: int
 
     @validator("year")
@@ -21,7 +21,7 @@ class EventYearParams(_EventParams):
         return y
 
 
-class EventYear(_Event):
+class EventYear(Event):
     @decode_request_params
     def __init__(self, params: dict):
         super().__init__(params)
