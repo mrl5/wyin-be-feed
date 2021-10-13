@@ -6,16 +6,16 @@
 from datetime import datetime
 from random import randrange
 
-from feed.handlers._event import _Event, _EventParams
 from feed.handlers.decorators import decode_request_params
+from feed.handlers.event import Event, EventParams
 from feed.models.history import SingleHistoryEventModel
 
 
-class EventRandomParams(_EventParams):
+class EventRandomParams(EventParams):
     pass
 
 
-class EventRandom(_Event):
+class EventRandom(Event):
     @decode_request_params
     def __init__(self, params: dict = {}):
         super().__init__(params)

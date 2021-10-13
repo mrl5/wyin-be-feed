@@ -3,6 +3,7 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
+from abc import ABCMeta
 from asyncio import gather
 from typing import Optional
 from urllib.parse import quote
@@ -27,7 +28,7 @@ from feed.utils.wikidata_api import (
 from feed.utils.wikipedia_api import get_wiki_page_content, query
 
 
-class _EventParams(BaseModel):
+class EventParams(BaseModel):
     lang: str = DEFAULT_LANGUAGE
 
     @validator("lang")
@@ -36,13 +37,13 @@ class _EventParams(BaseModel):
         return lang
 
 
-class _Event(IHttpRequestHandler):
+class Event(IHttpRequestHandler, metaclass=ABCMeta):
     _year: int
     _lang: str = DEFAULT_LANGUAGE
 
     def __init__(self, params: dict = {}):
         self._client = get_async_client()
-        self._params = _EventParams(**params)
+        self._params = EventParams(**params)
 
     async def handle(self) -> SingleHistoryEventModel:
         self._lang = self._params.lang
